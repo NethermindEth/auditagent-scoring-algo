@@ -1,0 +1,33 @@
+{
+  "project_id": "code4rena_liquid-ron_2025_03",
+  "name": "Liquid Ron",
+  "platform": "code4rena",
+  "repositoryURL": "https://github.com/code-423n4/2025-01-liquid-ron",
+  "contractFiles": [
+    "src/Escrow.sol",
+    "src/LiquidProxy.sol",
+    "src/LiquidRon.sol",
+    "src/Pausable.sol",
+    "src/RonHelper.sol",
+    "src/ValidatorTracker.sol"
+  ],
+  "docs": {},
+  "codebases": [
+    {
+      "codebase_id": "Liquid Ron_main",
+      "repo_url": "https://github.com/code-423n4/2025-01-liquid-ron",
+      "commit": "e4b0b7c256bb2fe73b4a9c945415c3dcc935b61d",
+      "tree_url": "",
+      "tarball_url": ""
+    }
+  ],
+  "hound": {
+    "graphs": 5,
+    "graph_iterations": 8,
+    "analysis_iterations": null,
+    "analysis_time_limit_minutes": 240,
+    "plan_n": 5,
+    "reuse_graphs": true,
+    "force_graphs": false
+  }
+}

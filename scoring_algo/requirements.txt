@@ -1,0 +1,8 @@
+openai==1.101.0
+python-dotenv==1.0.1
+typer==0.17.3
+rich==14.1.0
+orjson==3.11.3
+langfuse==3.1.3 
+pydantic==2.11.7
+tiktoken==0.11.0

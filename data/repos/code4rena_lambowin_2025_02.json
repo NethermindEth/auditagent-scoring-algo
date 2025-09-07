@@ -1,0 +1,37 @@
+{
+  "project_id": "code4rena_lambowin_2025_02",
+  "name": "Lambo.win",
+  "platform": "code4rena",
+  "repositoryURL": "https://github.com/code-423n4/2024-12-lambowin/tree/main",
+  "contractFiles": [
+    "src/LamboFactory.sol",
+    "src/LamboToken.sol",
+    "src/LamboVEthRouter.sol",
+    "src/Utils/LaunchPadUtils.sol",
+    "src/VirtualToken.sol",
+    "src/libraries/1inchV6.sol",
+    "src/libraries/AddressLib.sol",
+    "src/libraries/ProtocolLib.sol",
+    "src/libraries/UniswapV2Library.sol",
+    "src/rebalance/LamboRebalanceOnUniwap.sol"
+  ],
+  "docs": {},
+  "codebases": [
+    {
+      "codebase_id": "Lambo.win_main",
+      "repo_url": "https://github.com/code-423n4/2024-12-lambowin",
+      "commit": "main",
+      "tree_url": "https://github.com/code-423n4/2024-12-lambowin/tree/main",
+      "tarball_url": "https://github.com/code-423n4/2024-12-lambowin/archive/main.tar.gz"
+    }
+  ],
+  "hound": {
+    "graphs": 5,
+    "graph_iterations": 8,
+    "analysis_iterations": null,
+    "analysis_time_limit_minutes": 240,
+    "plan_n": 5,
+    "reuse_graphs": true,
+    "force_graphs": false
+  }
+}

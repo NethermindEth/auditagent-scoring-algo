@@ -1,0 +1,33 @@
+{
+  "project_id": "cantina_smart-contract-audit-of-tn-contracts_2025_08",
+  "name": "Smart Contract Audit of Tn Contracts",
+  "platform": "cantina",
+  "repositoryURL": "https://github.com/Telcoin-Association/tn-contracts/tree/b3d8116094e67fdbc5977725eea3e7cf577866bd",
+  "contractFiles": [
+    "deployments/Deployments.sol",
+    "deployments/genesis/GenesisPrecompiler.sol",
+    "deployments/genesis/ITSGenesis.sol",
+    "deployments/utils/Create3Utils.sol",
+    "deployments/utils/ITSConfig.sol",
+    "deployments/utils/ITSUtils.sol",
+    "src/CI/GitAttestationRegistry.sol",
+    "src/InterchainTEL.sol",
+    "src/WTEL.sol",
+    "src/consensus/ConsensusRegistry.sol",
+    "src/consensus/Issuance.sol",
+    "src/consensus/StakeManager.sol",
+    "src/consensus/SystemCallable.sol",
+    "src/faucet/StablecoinManager.sol",
+    "src/faucet/TNFaucet.sol"
+  ],
+  "docs": {},
+  "codebases": [
+    {
+      "codebase_id": "Smart Contract Audit of Tn Contracts_b3d811",
+      "repo_url": "https://github.com/Telcoin-Association/tn-contracts",
+      "commit": "b3d8116094e67fdbc5977725eea3e7cf577866bd",
+      "tree_url": "https://github.com/Telcoin-Association/tn-contracts/tree/b3d8116094e67fdbc5977725eea3e7cf577866bd",
+      "tarball_url": "https://github.com/Telcoin-Association/tn-contracts/archive/b3d8116094e67fdbc5977725eea3e7cf577866bd.tar.gz"
+    }
+  ]
+}

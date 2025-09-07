@@ -1,0 +1,25 @@
+{
+  "project_id": "code4rena_iq-ai_2025_03",
+  "name": "IQ AI",
+  "platform": "code4rena",
+  "repositoryURL": "https://github.com/code-423n4/2025-01-iq-ai/tree/b16b866d4c8d3e4a69b37a02c4e396d4b294537e",
+  "contractFiles": [
+    "src/AIToken.sol",
+    "src/Agent.sol",
+    "src/AgentFactory.sol",
+    "src/AgentRouter.sol",
+    "src/BootstrapPool.sol",
+    "src/LiquidityManager.sol",
+    "src/TokenGovernor.sol"
+  ],
+  "docs": {},
+  "codebases": [
+    {
+      "codebase_id": "IQ AI_b16b86",
+      "repo_url": "https://github.com/code-423n4/2025-01-iq-ai",
+      "commit": "b16b866d4c8d3e4a69b37a02c4e396d4b294537e",
+      "tree_url": "https://github.com/code-423n4/2025-01-iq-ai/tree/b16b866d4c8d3e4a69b37a02c4e396d4b294537e",
+      "tarball_url": "https://github.com/code-423n4/2025-01-iq-ai/archive/b16b866d4c8d3e4a69b37a02c4e396d4b294537e.tar.gz"
+    }
+  ]
+}

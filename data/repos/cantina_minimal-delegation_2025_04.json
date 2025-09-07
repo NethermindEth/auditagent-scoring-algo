@@ -1,0 +1,44 @@
+{
+  "project_id": "cantina_minimal-delegation_2025_04",
+  "name": "minimal-delegation",
+  "platform": "cantina",
+  "repositoryURL": "https://github.com/Uniswap/minimal-delegation/tree/732247c5e3146b9340cb29e0f2b8f9e2f1df67a4",
+  "contractFiles": [
+    "src/BaseAuthorization.sol",
+    "src/EIP712.sol",
+    "src/ERC1271.sol",
+    "src/ERC4337Account.sol",
+    "src/ERC7201.sol",
+    "src/ERC7821.sol",
+    "src/ERC7914.sol",
+    "src/KeyManagement.sol",
+    "src/MinimalDelegation.sol",
+    "src/MinimalDelegationEntry.sol",
+    "src/Multicall.sol",
+    "src/NonceManager.sol",
+    "src/hooks/execution/GuardedExecutorHook.sol",
+    "src/hooks/shared/AccountKeyHashLib.sol",
+    "src/libraries/BatchedCallLib.sol",
+    "src/libraries/CallLib.sol",
+    "src/libraries/CalldataDecoder.sol",
+    "src/libraries/EntrypointLib.sol",
+    "src/libraries/HooksLib.sol",
+    "src/libraries/KeyLib.sol",
+    "src/libraries/ModeDecoder.sol",
+    "src/libraries/SettingsLib.sol",
+    "src/libraries/SignedBatchedCallLib.sol",
+    "src/libraries/Static.sol",
+    "src/libraries/TransientAllowance.sol",
+    "src/libraries/WrappedDataHash.sol"
+  ],
+  "docs": {},
+  "codebases": [
+    {
+      "codebase_id": "minimal-delegation_732247",
+      "repo_url": "https://github.com/Uniswap/minimal-delegation",
+      "commit": "732247c5e3146b9340cb29e0f2b8f9e2f1df67a4",
+      "tree_url": "https://github.com/Uniswap/minimal-delegation/tree/732247c5e3146b9340cb29e0f2b8f9e2f1df67a4",
+      "tarball_url": "https://github.com/Uniswap/minimal-delegation/archive/732247c5e3146b9340cb29e0f2b8f9e2f1df67a4.tar.gz"
+    }
+  ]
+}

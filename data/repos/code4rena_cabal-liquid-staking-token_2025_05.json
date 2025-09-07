@@ -1,0 +1,36 @@
+{
+  "project_id": "code4rena_cabal-liquid-staking-token_2025_05",
+  "name": "Cabal Liquid Staking Token",
+  "platform": "code4rena",
+  "repositoryURL": "https://github.com/code-423n4/2025-04-cabal/tree/5b5f92ab4f95e5f9f405bbfa252860472d164705",
+  "contractFiles": [
+    "sources/bribe.move",
+    "sources/cabal.move",
+    "sources/cabal_token.move",
+    "sources/emergency.move",
+    "sources/manager.move",
+    "sources/package.move",
+    "sources/pool_router.move",
+    "sources/snapshots.move",
+    "sources/utils.move",
+    "sources/voting_reward.move",
+    "vip-contract/sources/lock_staking.move",
+    "vip-contract/sources/operator.move",
+    "vip-contract/sources/tvl_manager.move",
+    "vip-contract/sources/utils.move",
+    "vip-contract/sources/vault.move",
+    "vip-contract/sources/vesting.move",
+    "vip-contract/sources/vip.move",
+    "vip-contract/sources/weight_vote.move"
+  ],
+  "docs": {},
+  "codebases": [
+    {
+      "codebase_id": "Cabal Liquid Staking Token_5b5f92",
+      "repo_url": "https://github.com/code-423n4/2025-04-cabal",
+      "commit": "5b5f92ab4f95e5f9f405bbfa252860472d164705",
+      "tree_url": "https://github.com/code-423n4/2025-04-cabal/tree/5b5f92ab4f95e5f9f405bbfa252860472d164705",
+      "tarball_url": "https://github.com/code-423n4/2025-04-cabal/archive/5b5f92ab4f95e5f9f405bbfa252860472d164705.tar.gz"
+    }
+  ]
+}
