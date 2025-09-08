@@ -2,7 +2,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior finding correctly identifies the verified front-running issue in MinimalDelegation.sol. The ground truth describes a vulnerability where execute calls can be front-run because the function is publicly callable and there is no proper validation of the intended executor in the signed digest. Among the junior auditor's findings, none correctly identify the contract and function for this issue or describe the front-running risk and its consequences. The closest finding (index 1) discusses nonce consumption before signature verification in MinimalDelegation._handleVerifySignature, which is a separate DoS/vector and does not capture the front-running flaw described in the ground truth.",
+    "explanation": "None of the junior auditor\u2019s findings describe the front-running issue in MinimalDelegation.execute: missing executor identity in the signed digest allowing anyone to front-run and break batched calls. The closest (index 1) addresses nonce misuse, not the core front-running vulnerability.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "High",
     "index_of_finding_from_junior_auditor": -1,
@@ -12,7 +12,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The junior auditor did not identify the verified gas-out-of-gas DoS in execute(). Among the findings, only index 1 references execute(SignedBatchedCall) but it describes a nonce-consumption DoS, not the 63/64 gas forwarding vulnerability. Therefore there is no valid or partial match to the ground truth.",
+    "explanation": "None of the junior auditor's findings describe the out-of-gas sabotage in execute(SignedBatchedCall) due to EIP-150 gas forwarding and the shouldRevert flag. The closest finding relates to nonce consumption, not gas exhaustion.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "High",
     "index_of_finding_from_junior_auditor": -1,
@@ -22,7 +22,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior finding matches the verified issue 'Potential double-counting allowance risk' because none correctly identifies the combination of ephemeral and persistent native allowances that can stack and exceed a user\u2019s intended limit in MinimalDelegation. The closest topics in the junior report are discussions of allowances in TransientAllowance.sol (index 2/3), but they do not describe the stacking of two forms or the consequence of over-spending. Therefore there is no valid match.",
+    "explanation": "None of the junior auditor\u2019s findings describe the separate persistent vs ephemeral allowance tracking in the MinimalDelegation wallet that allows those allowances to stack, leading to double-counting. They instead identify owner-scope or storage-collision issues unrelated to the verified double-counting risk.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -32,7 +32,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior finding matches the verified off-by-one issue in isExpired(). The ground truth describes an off-by-one expiration check where expiration == block.timestamp is mishandled across components. None of the junior findings reference isExpired, expiration comparison to block.timestamp, or related expiration logic; all identified issues pertain to unrelated topics. Therefore there is no valid or partial match.",
+    "explanation": "None of the junior auditor's findings reference the off-by-one error in isExpired(), the mismatch between expiration == block.timestamp handling, or the related validUntil logic. The verified issue is missing entirely.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -42,17 +42,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The verified issue describes potential privilege escalation in nonce management (admin vs non-admin nonce invalidation). The junior finding 1 only describes consuming a nonce before signature verification, leading to a DoS/nonce misuse, and does not address the admin/non-admin nonce control or the privilege-escalation aspect. Therefore it does not match the core issue.",
-    "severity_from_junior_auditor": "Medium",
-    "severity_from_truth": "Low",
-    "index_of_finding_from_junior_auditor": -1,
-    "is_fp": false,
-    "finding_description_from_junior_auditor": "NOT FOUND"
-  },
-  {
-    "is_match": false,
-    "is_partial_match": false,
-    "explanation": "The verified issue concerns _checkExpiry reverting when a signature is expired during validateUserOp (leading to a revert instead of SIG_VALIDATION_FAILED). None of the junior auditor's findings reference validateUserOp, _checkExpiry, or the KeyExpired error, so there is no valid or partial match.",
+    "explanation": "None of the junior auditor's findings address the privilege escalation in NonceManager's invalidateNonce mechanism or the shared nonce mapping that allows non-admin keyHashes to invalidate other keyHashes' nonces.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -62,27 +52,17 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior finding matches the verified issue. The ground truth concerns ModeDecoder implementing a subset of EIP-7821 and misalignment with the extended mode handling described in EIP-7821. None of the junior findings identify ModeDecoder, execute or supportsExecutionMode, nor do they discuss EIP-7821 modes or related execution semantics. Therefore there is no valid or partial match.",
+    "explanation": "None of the junior auditor's findings mention the _checkExpiry revert issue in validateUserOp or the incorrect handling of expired signatures as per EIP-4337; they focus on unrelated issues.",
     "severity_from_junior_auditor": "N/A",
-    "severity_from_truth": "Info",
+    "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
     "is_fp": false,
     "finding_description_from_junior_auditor": "NOT FOUND"
   },
   {
-    "is_match": true,
-    "is_partial_match": false,
-    "explanation": "Match: The junior finding \"Improper masking in isAdmin() allows privilege escalation\" in SettingsLib.sol correctly identifies the same root cause described in the verified issue. It notes that the code shifts by 200 bits (shr(200, settings)) and effectively treats a 56-bit region as admin, with the top 6 bytes not masked. This mirrors the ground-truth description that bits [200..255] form the admin region (not [248..255]) due to the incorrect comment/implementation. The finding correctly specifies the contract (SettingsLib.sol) and function (isAdmin(Settings)) and explains the potential consequence (privilege escalation due to improper masking), aligning with the reported discrepancy between the intended 8-bit admin field and the actual 56-bit region as described in the verified issue.",
-    "severity_from_junior_auditor": "High",
-    "severity_from_truth": "Info",
-    "index_of_finding_from_junior_auditor": 5,
-    "is_fp": false,
-    "finding_description_from_junior_auditor": "The isAdmin function shifts the Settings value right by 200 bits and directly interprets the result as a boolean without masking to the intended 8-bit isAdmin field. Because the top 6 bytes are marked as UNUSED, any non-zero bits in those 6 bytes will also be shifted into the returned value, causing isAdmin() to evaluate to true even if the isAdmin byte itself is zero. This occurs in isAdmin(Settings) at lines 21-24 (specifically _isAdmin := shr(200, settings)). This is a security issue because any code that relies on SettingsLib.isAdmin for access control can be bypassed if an attacker can set or influence the top 6 bytes of the Settings value (e.g., by providing or constructing a Settings with bits set above bit 207). Impact: unauthorized admin privilege, leading to potential fund loss, unauthorized state changes, or protocol manipulation. A fix is to mask to the isAdmin byte before converting to bool, e.g., _isAdmin := iszero(iszero(and(shr(200, settings), 0xFF)))."
-  },
-  {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings mention the verified issue's core problem: that hookData is not included in the signature digest (hookData not signed, allowing arbitrary hookData to be passed to the hook). The ground truth pertains to MinimalDelegation and the verify/handleAfterVerifySignature/handleAfterIsValidSignature flow, but every junior finding describes different issues (calldata slicing, nonce handling, storage keys, EIP-1153, isAdmin masking, multicall msg.value reuse, signature verification reverts, root key sentinel, WebAuthn UV). Therefore there is no valid nor partial match; the index of the matching junior finding is -1.",
+    "explanation": "None of the junior auditor\u2019s findings mention ModeDecoder or MinimalDelegation\u2019s execute(bytes32 mode, bytes) or supportsExecutionMode functions or address EIP-7821 compliance; the verified issue is not covered.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -92,7 +72,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior auditor finding matches the verified issue (MinimalDelegation EntryPoint compatibility). The junior report does not mention MinimalDelegation, EntryPoint, or executeUserOp version gating; therefore none of the findings identify the ground-truth issue. A valid match would require correctly naming the MinimalDelegation contract and describing the version compatibility problem with executeUserOp support.",
+    "explanation": "None of the junior auditor's findings mention the incorrect comment in SettingsLib; they identify a functional masking vulnerability, not the comment inconsistency.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -102,7 +82,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior finding matches the verified issue. The ground truth refers to EntryPoint Version v0.6.0 and the MinimalDelegation wallet's executeUserOp support introduced in v0.7.0/v0.8.0. None of the junior auditor's findings mention EntryPoint, v0.6.0, or the compatibility issue related to executeUserOp, so there is no valid or partial match.",
+    "explanation": "None of the junior auditor's findings reference the omission of hookData from the EIP-712 signature digest in MinimalDelegation or describe its impact. The verified issue about arbitrary hookData supply is not covered.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -112,7 +92,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The verified issue concerns EntryPoint Version v0.7.0 compatibility for executeUserOp in MinimalDelegation (v0.7.0/v0.8.0 support). None of the junior findings mention this version-specific issue or EntryPoint compatibility. The closest finding references MinimalDelegation.sol but describes a different issue (nonce handling in _handleVerifySignature), which is unrelated to the verified security issue. Therefore there is no valid or partial match.",
+    "explanation": "No junior auditor finding addresses the MinimalDelegation smart wallet compatibility with EntryPoint v0.6.0 vs v0.7.0+/executeUserOp support issue.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -122,7 +102,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior finding matches the verified issue 'EntryPoint Version v0.8.0'. The ground-truth issue concerns compatibility of MinimalDelegation/entry point versions and the executeUserOp flow (v0.7.0 and v0.8.0 supported, v0.6.0 not), whereas none of the junior findings identify the relevant contract, function, or version-compatibility problem related to EntryPoint v0.8.0.",
+    "explanation": "The junior auditor\u2019s report contains no finding addressing the EntryPoint version v0.6.0 incompatibility or lack of executeUserOp support. None of the findings mention EntryPoint versions or the compatibility issue described in the verified issue.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -132,7 +112,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior finding matches the verified licensing issue. The ground truth concerns the SPDX license status (unlicensed contracts) across the codebase, while the junior auditor's findings describe various functional security vulnerabilities (e.g., unchecked calldata, nonce consumption, cross-module transient storage, etc.) and do not reference licensing or SPDX identifiers.",
+    "explanation": "None of the junior auditor's findings address the EntryPoint version compatibility issue (v0.7.0/v0.8.0 support vs. v0.6.0), so the verified issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -142,7 +122,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior finding identifies the verified ERC7914 issue regarding 0-amount transfers returning true. The junior auditor's findings cover unrelated security topics; none discuss ERC7914, 0 transfer semantics, or the implications described in the ground truth. Therefore there is no valid or partial match.",
+    "explanation": "None of the junior auditor's findings mention EntryPoint version compatibility or the executeUserOp support introduced in v0.7.0, so the verified issue is not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -152,7 +132,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior finding matches the verified issue about _execute() potentially calling handleAfterExecute() on a stale hook due to caching the hook before to.call(). None of the findings reference hook caching, execute flow, or stale hooks (e.g., handleAfterExecute, _execute, or related delegatecall patterns) in the MinimalDelegation or related contracts, so there is no valid or partial match.",
+    "explanation": "None of the junior auditor\u2019s findings address SPDX license identifiers or the absence of a license; they all focus on technical issues unrelated to licensing.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -162,7 +142,27 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior finding directly matches the verified issue. The ground truth concerns validateUserOp() in MinimalDelegation returning early when the signature is invalid, causing inconsistency with the spec and possible DoS exposure. None of the junior findings describe that contract/function or that early-return pattern. The closest item is finding 7 about verify() path reverting on malformed signatures, but it does not capture the validateUserOp early-return behavior. Therefore no valid match.",
+    "explanation": "The junior auditor\u2019s report contains no finding related to ERC7914 or zero-amount transfer behavior; the verified issue about returning true on 0 transfers is not identified.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Info",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings reference the _execute() function or the stale hook handleAfterExecute() issue described in the verified security issue.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Info",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings mention the validateUserOp function or the early return on invalid signature in MinimalDelegation.validateUserOp, so the verified issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -218,6 +218,16 @@
     "index_of_finding_from_junior_auditor": 4,
     "is_fp": true,
     "finding_description_from_junior_auditor": "The library uses TLOAD/TSTORE opcodes directly. On networks that have not activated EIP-1153 (e.g., pre-Cancun or certain L2s), these opcodes are invalid and will cause any function that executes them to revert, resulting in denial of service. Without a feature flag or fallback path, deploying or calling this on unsupported chains will break functionality."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 5,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The isAdmin function shifts the Settings value right by 200 bits and directly interprets the result as a boolean without masking to the intended 8-bit isAdmin field. Because the top 6 bytes are marked as UNUSED, any non-zero bits in those 6 bytes will also be shifted into the returned value, causing isAdmin() to evaluate to true even if the isAdmin byte itself is zero. This occurs in isAdmin(Settings) at lines 21-24 (specifically _isAdmin := shr(200, settings)). This is a security issue because any code that relies on SettingsLib.isAdmin for access control can be bypassed if an attacker can set or influence the top 6 bytes of the Settings value (e.g., by providing or constructing a Settings with bits set above bit 207). Impact: unauthorized admin privilege, leading to potential fund loss, unauthorized state changes, or protocol manipulation. A fix is to mask to the isAdmin byte before converting to bool, e.g., _isAdmin := iszero(iszero(and(shr(200, settings), 0xFF)))."
   },
   {
     "is_match": false,

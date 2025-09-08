@@ -1,0 +1,432 @@
+[
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings mention the buffer handling or the missing buffer restoration in cancelWithdrawal/redelegateWithdrawnHYPE within StakingManager.sol, so the verified issue was not identified.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "High",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings address the queued withdrawal slashing ordering issue in confirmWithdrawal, where early withdrawers lock in a favorable rate before a slash, disadvantaging later users.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "High",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings mention the receive() function in StakingManager or the auto-staking of received HYPE that prevents withdrawal confirmation and inflates the exchange ratio. The core issue of mishandling HYPE in receive() is not identified.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "High",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings mention the incorrect balance check in processValidatorRedelegation in the StakingManager contract, so the verified issue was not identified.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": true,
+    "is_partial_match": false,
+    "explanation": "The junior auditor's finding at index 9 precisely identifies the missing whenWithdrawalNotPaused modifier in StakingManager.sol's confirmWithdrawal (and batchConfirmWithdrawals) functions, accurately describing the bypass of the withdrawal pause and its consequences, matching the verified issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": 9,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "The withdrawal pause flag (withdrawalPaused) is enforced in queueWithdrawal() via whenWithdrawalNotPaused but is not enforced in confirmWithdrawal() or batchConfirmWithdrawals(). As a result, even when withdrawals are 'paused', users with matured withdrawal requests can still claim ETH. Where: confirmWithdrawal(uint256), batchConfirmWithdrawals(uint256[]) both lack whenWithdrawalNotPaused and only use whenNotPaused. Why it's a security issue: If the intent of withdrawalPaused is to halt all withdrawal-related outflows during an incident, this omission allows users to continue withdrawing funds, defeating the pause's purpose. Potential impact: Loss containment and incident response can be undermined during a pause as funds continue to leave the contract."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings mentions the cancelWithdrawal function or the failure to restore hypeBuffer and pendingWithdrawals, so the verified issue was not identified.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings identify the processing order issue in StakingManager.sol's processL1Operations (withdrawals before deposits) leading to deposits not being delegated and reduced rewards.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor findings identify the DoS issue in StakingManager where an attacker can spam the L1 deposit queue and cause processL1Operations or resetL1OperationsQueue to exceed gas limits and revert. The closest related findings address different issues (e.g., missing validator checks or pause bypass), but none describe the unbounded pending deposit queue deletion leading to OOG.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings identify the missing whenNotPaused modifier on the mint function in KHYPE.sol. The report does not mention the mint function bypassing pause controls, so the verified issue was not found.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The junior auditor report contains no finding related to OracleManager.sol or the generatePerformance function and does not describe the silent skipping of inactive oracles issue.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings refer to OracleManager.sol, function generatePerformance, or the unbounded iteration over authorizedOracles. The specific unbounded oracle iteration issue was not identified.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings reference OracleManager.sol, the generatePerformance function, or describe handling of zero timestamps.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings identifies the issue in OracleManager.sol generatePerformance using average instead of median.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings mention OracleManager.sol or the generatePerformance function and none describe the missing event emission for equal avgRewardAmount or avgSlashAmount values.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings mention PauserRegistery.sol or the inconsistent error message in unpauseContract. They do not address this verified issue.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": true,
+    "explanation": "The junior auditor\u2019s finding at index 5 correctly pinpoints the PauserRegistry.sol emergencyPauseAll function and notes its O(n) loop leads to high gas costs that can revert under block limits. The verified issue specifically calls out inefficient event emission in that loop, whereas the junior auditor focuses on a DoS consequence of the loop. They match on the gas-inefficiency root cause but differ in described impact and mitigation, making this a partial match.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": 16,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "The contract follows the upgradeable pattern and provides a public initialize() function guarded by the initializer modifier. While the implementation contract's constructor disables initializers, if a proxy pointing to this logic is deployed without atomically calling initialize in the same transaction, any external account can call initialize first and grant themselves DEFAULT_ADMIN_ROLE, PAUSER_ROLE, UNPAUSER_ROLE, and PAUSE_ALL_ROLE by supplying their own addresses as parameters. This results in unauthorized control over the registry: the attacker could authorize arbitrary contracts, pause/unpause targets, or permanently disrupt operations. Potential impact: complete takeover of access control leading to unauthorized actions and denial of service."
+  },
+  {
+    "is_match": true,
+    "is_partial_match": false,
+    "explanation": "The junior auditor\u2019s finding at index 3 correctly identifies DefaultOracle.sol and highlights the absence of any mechanism to remove validators (stale or otherwise). This aligns with the verified issue of Missing Method to Remove Stale Validators. The junior auditor also explains the consequence (unbounded growth causing DoS), demonstrating a full understanding of the issue and its impact.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": 14,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "The update rate limit relies on block.timestamp: require(block.timestamp >= metrics.lastUpdateTime + MIN_UPDATE_INTERVAL). Miners/validators can manipulate block timestamps within a small range, allowing updates to occur slightly earlier than the intended 1-hour interval. While the effect is typically limited to seconds, in contexts where precise timing matters, this could lead to premature updates and potential protocol manipulation if consumers make time-sensitive decisions based on updates."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The junior auditor's report does not include any finding regarding DefaultOracle.sol or the updateValidatorMetrics function lacking sanity checks for reward and slashing amounts.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings reference DefaultAdapter.sol or the immutable defaultOracle variable and its single point of failure issue.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": true,
+    "is_partial_match": false,
+    "explanation": "The junior auditor correctly identifies DefaultAdapter.sol and the supportsInterface(bytes4) function, accurately describes the non-compliance with ERC-165 (missing support for 0x01ffc9a7), and explains the compatibility/denial-of-service consequences.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor findings identify the missing slippage protection in the stake() function of StakingManager.sol, so the verified issue is not captured.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings identify the lack of rate limiting in the queueWithdrawal function of StakingManager.sol, which is required to prevent spamming and performance degradation.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings address the inaccurate emission of the Delegate event in StakingManager.sol::_distributeStake or the discrepancy between original and truncated amounts. They focus on access control, DoS, and logic validation issues but omit the event emission bug.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The junior auditor report does not include any finding describing the silent precision loss in decimal conversion in the _withdrawFromValidator function of StakingManager.sol. Thus the verified issue is not identified.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings identify the missing event emission in the _withdrawFromValidator function in StakingManager.sol for rebalance withdrawals. The junior report covers other access control, DoS, and logic issues but does not mention event emissions or rebalance withdrawals.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 0,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The mint function allows any account with MINTER_ROLE to mint arbitrary amounts of KHYPE to any address without caps or additional checks. Location: mint(address to, uint256 amount). This is a security issue because compromise or misuse of the MINTER_ROLE can result in unbounded token inflation, diluting holders and effectively extracting value from users. Potential impact includes loss of value for all holders, market manipulation, and protocol insolvency if KHYPE is used as collateral or represents staked value."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 1,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The burn function allows any account with BURNER_ROLE to burn tokens from any address without that address's consent or allowance. Location: burn(address from, uint256 amount). This is a security issue because a compromised or malicious BURNER_ROLE can destroy user balances unilaterally. Potential impact includes direct loss of user funds, censorship/denial of access to balances, and reputational or legal risk if users expect non-custodial behavior."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 2,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "All token state updates call pauserRegistry.isPaused(address(this)) via the whenNotPaused modifier before executing. Location: whenNotPaused modifier and _update(...) override. Because this is an external call to a separate contract, any malfunction, intentional revert, excessive gas usage, or compromise of the pauser registry can halt all transfers, mints, and burns, leading to a denial of service. Additionally, since the external call happens in the transfer/mint/burn path, a malicious registry could perform unexpected reentrant interactions before state is updated (less likely to cause inconsistent state for a plain ERC20, but it increases attack surface). Impact: complete freeze/DoS of token operations if the registry misbehaves or is compromised."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 3,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The _getExchangeRatio function computes totalHYPE = totalStaked + rewardsAmount - totalClaimed - slashingAmount using checked arithmetic. If totalClaimed + slashingAmount exceeds totalStaked + rewardsAmount, this subtraction underflows and reverts. Because kHYPEToHYPE and HYPEToKHYPE call _getExchangeRatio, any call to these view functions will revert, effectively denying service for exchange rate queries and any on-chain logic that depends on them. There are no sanity checks in recordStake or recordClaim to prevent inconsistent totals, so any authorized manager can call recordClaim with arbitrarily large amounts and immediately brick the exchange ratio."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 4,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "Two loops are unbounded and depend on the number of managers/tokens stored: (1) _getExchangeRatio iterates over all unique kHYPE tokens to sum totalSupply; (2) deauthorizeStakingManager iterates over all authorized managers to determine if a token is still in use. A malicious or compromised MANAGER_ROLE can authorize a very large number of managers with distinct tokens. This can make _getExchangeRatio too expensive to execute in transactions (breaking any on-chain consumer of conversion functions) and can make deauthorizeStakingManager run out of gas, preventing the admin from cleaning up entries. While view calls off-chain are not gas-limited, any contract calling these views in a transaction would be affected."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 5,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "authorizeStakingManager allows MANAGER_ROLE to register any kHYPEToken address without validating that it is a contract or a well-behaved ERC20. _getExchangeRatio then calls IERC20(token).totalSupply() for each unique token. If a non-contract (EOA) or a non-compliant/malicious token is registered, totalSupply() will revert (e.g., due to no code/empty return data or intentional revert), which in turn causes _getExchangeRatio, kHYPEToHYPE, and HYPEToKHYPE to revert. This enables a privileged actor or configuration error to cause persistent DoS of conversion functions."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 6,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "initialize accepts any _validatorManager address without checking it is a contract. If an EOA or invalid address is set, calls to validatorManager.totalRewards() or totalSlashing() (used in totalRewards(), totalSlashing(), and _getExchangeRatio()) will revert due to empty return data, breaking these views and any dependent logic."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 7,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "In stake() -> _distributeStake(amount, OperationType.UserDeposit), the contract retrieves the current validator via validatorManager.getDelegation(address(this)) but does not validate that it is non-zero or active before proceeding. In the UserDeposit branch of _distributeStake, ETH is sent to L1 (payable(L1_HYPE_CONTRACT).call{value: amount}(...)) and a cDeposit is executed before queueing a delegation for whatever validator address was returned. If no validator is set (address(0)) or the validator is inactive, the L1 delegation operation will be queued with an invalid destination. When processL1Deposits runs, l1Write.sendTokenDelegate(op.validator, ...) may revert or send to a null/invalid validator, potentially causing the queue to be unprocessable and leaving user funds stranded on L1 spot balance. This is a real denial-of-service and potential funds-stuck condition caused by missing validation in the UserDeposit/SpotDeposit/RebalanceDeposit branches. Where: _distributeStake() (UserDeposit/SpotDeposit/RebalanceDeposit paths), called from stake(); no require on validator != address(0) or validatorManager.validatorActiveState(validator). Why it's a security issue: Users can successfully stake and have their ETH moved off the chain before any validator safety checks, and the operation may be impossible to complete if no valid validator is configured, leaving funds stuck. Potential impact: DoS of deposit processing and funds stuck on L1 spot balance, requiring privileged intervention and potentially risky manual recovery."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 8,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The function withdrawFromSpot(uint64 amount) lacks the whenNotPaused modifier. This allows an account with OPERATOR_ROLE to execute l1Write.sendSpot(...) and move tokens from the L1 spot balance even when pauserRegistry.isPaused(address(this)) is true. Most other operational functions are guarded by whenNotPaused, indicating this is likely unintended. Where: withdrawFromSpot(uint64 amount). Why it's a security issue: Pausing is typically used as an emergency control to halt sensitive operations. Allowing privileged operators to continue moving funds during a pause undermines the pause mechanism. Potential impact: During an emergency, operators could continue moving funds, defeating incident response controls and potentially worsening loss scenarios."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 10,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "Administrative setter functions lack access control, allowing any address to change critical validation thresholds. Specifically, setSlashingTolerance(), setRewardsTolerance(), setScoreTolerance(), and setMaxScoreBound() are external and not restricted to an owner/admin. This enables an attacker to: (1) Set tolerances extremely high to allow malicious data to pass undetected (e.g., large reward/slashing increments or drastic score changes), or (2) Set tolerances extremely low (including zero) or maxScoreBound to a very small value to cause persistent rejections, effectively creating a denial of service for validator updates. Because these thresholds directly gate whether validator data is accepted by the system, arbitrary changes can lead to unauthorized acceptance of manipulated data or permanent disruption of protocol operations."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 11,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The functions reportRewardEvent and reportSlashingEvent mutate critical accounting state (totalRewards, totalSlashing, validatorRewards, validatorSlashing) but are not protected by the whenNotPaused modifier. Other mutating functions in the contract enforce pause via pauserRegistry.isPaused, indicating an intended global pause mechanism. Allowing these two functions to bypass pause enables an ORACLE_MANAGER_ROLE holder to continue altering accounting data even when the contract is paused, undermining incident response and potentially impacting downstream components that rely on these values for fund distribution or risk controls."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 12,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The whenNotPaused modifier calls an external contract pauserRegistry.isPaused(address(this)) before function execution. Several state-changing functions apply modifiers in the order whenNotPaused nonReentrant ... (e.g., rebalanceWithdrawal, closeRebalanceRequests, deactivateValidator, reactivateValidator, setDelegation). Because modifiers execute left-to-right, the external call to pauserRegistry occurs before the ReentrancyGuard is engaged. A malicious or compromised pauserRegistry could reenter this contract during the pause check. While role checks on state-changing functions mitigate most direct exploits, a misconfigured setup where pauserRegistry also holds privileged roles (e.g., MANAGER_ROLE) would allow it to perform privileged actions via reentrancy, bypassing expected sequencing and potentially causing inconsistent state or unexpected side effects. At minimum, this widens the attack surface and violates the Checks-Effects-Interactions pattern."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 13,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The contract maintains an ever-growing set of validators and exposes a function that returns the entire set. In updateValidatorMetrics (external), each call adds the provided validator to the _validators set. There is no mechanism to remove validators or cap the set size. The getValidators() function returns _validators.values(), which copies the entire set into memory. If the set becomes large, on-chain callers that rely on getValidators() may hit block gas limits and revert, resulting in a denial of service for protocols that integrate this oracle on-chain. A compromised or malicious operator (or an operator making mistakes) can add a very large number of distinct validator addresses, amplifying this risk. Impact: On-chain consumers that iterate over or rely on getValidators() in transactions can be bricked or griefed due to out-of-gas errors; off-chain calls are not affected."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 15,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The emergencyPauseAll function iterates over the entire _authorizedContracts set and toggles isPaused for each entry. As the number of authorized contracts grows, the gas cost of this O(n) loop grows linearly. Once the set is large enough, emergencyPauseAll may become impossible to execute within block gas limits and will revert, preventing any emergency pause action. This is a security issue because the emergency pause is a safety mechanism intended to be callable under stress; making it potentially uncallable defeats its purpose and can lead to broader protocol risk if pausing is required during an incident. Potential impact: denial of service of the emergency pause capability, which could enable continued operation under unsafe conditions or hinder incident response."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 17,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The generatePerformance function makes external calls to untrusted oracle adapters without limiting the gas forwarded. A malicious active oracle can consume all remaining gas (e.g., via an infinite loop) during getPerformance, causing the entire transaction to run out of gas and revert. try/catch does not help if the callee consumes all gas, because there is no gas left to execute the catch path. This occurs in generatePerformance() within the loop over authorizedOracles when calling IOracleAdapter(oracle).getPerformance(validator). Impact: The operator cannot successfully execute generatePerformance while a malicious active oracle exists, halting validator performance updates and reward/slashing reporting until the oracle is deactivated."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 18,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "Untrusted oracle outputs for balance, accRewardAmount, and accSlashAmount are summed across oracles without upper bounds. A malicious active oracle can return extremely large values (e.g., close to type(uint256).max). When a second valid oracle\u2019s values are added, the addition overflows under Solidity 0.8 and reverts, aborting the entire transaction. This occurs in generatePerformance() during aggregation: totalBalance += balance; totalRewardAmount += accRewardAmount; totalSlashAmount += accSlashAmount. Scores are bounded by maxPerformanceBound, but balances/rewards/slashes are not. Impact: A single malicious active oracle can reliably cause generatePerformance to revert (especially when at least one other oracle report is valid), blocking performance updates and reward/slashing reporting until the oracle is deactivated."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 19,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "initialize() does not validate that admin, operator, and manager are non-zero. If deployed with any of these as the zero address, roles will be assigned to address(0). Specifically, granting DEFAULT_ADMIN_ROLE to address(0) would permanently remove administrative control (e.g., inability to update sanity checker or manage roles). Similarly, setting operator or manager to address(0) would prevent generatePerformance or management operations. This occurs in initialize() where _grantRole is called with user-supplied addresses. Impact: Misconfiguration at deployment can cause denial of service for governance/operations."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 20,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The supportsInterface function only returns true for the IOracleAdapter interface ID and does not return true for the ERC165 interface ID (0x01ffc9a7). According to ERC165, any contract implementing supportsInterface must return true for the ERC165 ID. Location: supportsInterface(bytes4 interfaceId) function. Why it's a security issue: Many integrators first check supportsInterface(0x01ffc9a7) to verify ERC165 support before querying for specific interfaces. Returning false can cause them to treat the contract as non-compliant and refuse to interact, resulting in a denial of service for integrations that depend on ERC165 detection. Potential impact: Third-party protocols/tools may reject or fail to register/use this adapter, preventing data access through it."
+  }
+]

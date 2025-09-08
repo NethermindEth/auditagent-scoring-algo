@@ -2,7 +2,7 @@
   "project_id": "cantina_minimal-delegation_2025_04",
   "name": "minimal-delegation",
   "platform": "cantina",
-  "repositoryURL": "https://github.com/Uniswap/minimal-delegation/tree/732247c5e3146b9340cb29e0f2b8f9e2f1df67a4",
+  "repositoryURL": "https://github.com/Uniswap/calibur/tree/732247c5e3146b9340cb29e0f2b8f9e2f1df67a4",
   "contractFiles": [
     "src/BaseAuthorization.sol",
     "src/EIP712.sol",

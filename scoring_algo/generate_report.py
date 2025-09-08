@@ -1,3 +1,4 @@
+# flake8: noqa E501
 # generate_report.py
 # Usage examples:
 #   python generate_report.py --benchmarks ../external-benchmark/benchmarks --out REPORT.md
@@ -9,7 +10,7 @@
 import argparse
 import json
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -35,7 +36,7 @@ def _norm_sev(value: str) -> str:
     return s or "unknown"
 
 
-def _is_qa_truth_severity(sev: str) -> bool:
+def _is_qa_severity(sev: str) -> bool:
     sev = _norm_sev(sev)
     return sev in ("info", "bestpractices")
 
@@ -58,21 +59,25 @@ def _parse_repo_name(file_path: Path) -> str:
 def _calc_confusion_metrics(
     actual_findings: int, scan_findings: int, matched: int, partial: int, qa_findings: int
 ) -> Tuple[int, int, float, float, float, float, float, float]:
-    # Align with frontend logic:
-    # adjustedScanFindings = scanFindings - qaFindings
-    adjusted_scan = max(0, scan_findings - qa_findings)
+    # Base metrics ("real" F1):
+    # - Do NOT exclude QA from scan results (use raw scan_findings)
+    # - Do NOT count partial as TP (and also not as FP)
+    raw_scan = max(0, scan_findings)
 
     true_positives = matched
     false_negatives = max(0, actual_findings - true_positives)
-    false_positives = max(0, adjusted_scan - matched - partial)
+    false_positives = max(0, raw_scan - matched - partial)
 
-    precision = (true_positives / adjusted_scan) if adjusted_scan > 0 else 0.0
+    precision = (true_positives / raw_scan) if raw_scan > 0 else 0.0
     recall = (true_positives / actual_findings) if actual_findings > 0 else 0.0
     f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
 
-    # With partial
+    # With partial metrics:
+    # - Include partial in TP
+    # - Exclude QA from scan results
+    adjusted_scan = max(0, scan_findings - qa_findings)
     tp_with_partial = matched + partial
-    fn_with_partial = max(0, actual_findings - tp_with_partial)
+    _fn_with_partial = max(0, actual_findings - tp_with_partial)  # noqa F841
     precision_with_partial = (tp_with_partial / adjusted_scan) if adjusted_scan > 0 else 0.0
     recall_with_partial = (tp_with_partial / actual_findings) if actual_findings > 0 else 0.0
     f1_with_partial = (
@@ -101,21 +106,21 @@ def _format_pct(x: float) -> str:
 
 
 def _summarize_truth_from_eval(evaluated: List[dict]) -> Tuple[int, int, Dict[str, int]]:
-    # actual_findings = count of non-FP truth issues EXCLUDING QA (Info + Best Practices)
-    # qa_findings = count of non-FP truth issues that are QA severities
+    # actual_findings = total count of truth issues (ALL severities), excluding only FP rows
+    # qa_findings_truth = count of truth issues that are QA severities (for info table only)
     truth_counts: Dict[str, int] = defaultdict(int)
     actual = 0
-    qa = 0
+    qa_truth = 0
     for f in evaluated:
         if f.get("is_fp") is True:
             continue
         sev_truth = f.get("severity_from_truth") or ""
         truth_counts[_norm_sev(sev_truth)] += 1
-        if _is_qa_truth_severity(sev_truth):
-            qa += 1
-        else:
-            actual += 1
-    return actual, qa, dict(truth_counts)
+        if _is_qa_severity(sev_truth):
+            qa_truth += 1
+        # Count ALL severities toward the total truth count
+        actual += 1
+    return actual, qa_truth, dict(truth_counts)
 
 
 def _count_matched_partial_fp(evaluated: List[dict]) -> Tuple[int, int, int]:
@@ -141,6 +146,11 @@ def _scan_counts_from_scan_file(scan_items: List[dict]) -> Dict[str, int]:
     return dict(out)
 
 
+def _count_qa_from_scan_counts(scan_counts: Dict[str, int]) -> int:
+    # QA is derived from the scan results (Info + Best Practices), matching the frontend
+    return int(scan_counts.get("info", 0)) + int(scan_counts.get("bestpractices", 0))
+
+
 def compute_repo_stats(eval_path: Path, scan_root: Optional[Path]) -> RepoStats:
     evaluated = _load_json(eval_path) or []
     if not isinstance(evaluated, list):
@@ -149,7 +159,7 @@ def compute_repo_stats(eval_path: Path, scan_root: Optional[Path]) -> RepoStats:
     repo = _parse_repo_name(eval_path)
 
     matched, partial, fps = _count_matched_partial_fp(evaluated)
-    actual, qa, truth_counts = _summarize_truth_from_eval(evaluated)
+    actual, _qa_from_truth, truth_counts = _summarize_truth_from_eval(evaluated)
 
     scan_findings = 0
     scan_counts: Dict[str, int] = {}
@@ -160,10 +170,14 @@ def compute_repo_stats(eval_path: Path, scan_root: Optional[Path]) -> RepoStats:
             scan_findings = len(scan_items)
             scan_counts = _scan_counts_from_scan_file(scan_items)
 
+    # QA findings are sourced from the scan severities (Info + Best Practices)
+    qa_from_scan = _count_qa_from_scan_counts(scan_counts) if scan_counts else 0
+
     if scan_findings == 0:
-        # Derive a consistent scan length so adjustedScanFindings = matched + partial + fps
-        # This mirrors frontend behavior when adjusted by QA
-        scan_findings = matched + partial + fps + qa
+        # If we don't have the scan file, approximate scan length so that
+        # adjustedScanFindings = matched + partial + fps (same effect as UI)
+        # Since qa_from_scan is unknown, set it to 0 and fold all into scan length
+        scan_findings = matched + partial + fps
 
     false_positives, false_negatives, precision, recall, f1, p_w, r_w, f1_w = (
         _calc_confusion_metrics(
@@ -171,7 +185,7 @@ def compute_repo_stats(eval_path: Path, scan_root: Optional[Path]) -> RepoStats:
             scan_findings=scan_findings,
             matched=matched,
             partial=partial,
-            qa_findings=qa,
+            qa_findings=qa_from_scan,
         )
     )
 
@@ -180,7 +194,7 @@ def compute_repo_stats(eval_path: Path, scan_root: Optional[Path]) -> RepoStats:
         "scan_findings": scan_findings,
         "matched": matched,
         "partial": partial,
-        "qa_findings": qa,
+        "qa_findings": qa_from_scan,
         "false_positives": false_positives,
         "false_negatives": false_negatives,
     }
@@ -191,7 +205,7 @@ def compute_repo_stats(eval_path: Path, scan_root: Optional[Path]) -> RepoStats:
         scan_findings=scan_findings,
         matched=matched,
         partial=partial,
-        qa_findings=qa,
+        qa_findings=qa_from_scan,
         false_positives=false_positives,
         false_negatives=false_negatives,
         precision=precision,
@@ -270,7 +284,7 @@ def aggregate_overall(stats: List[RepoStats]) -> RepoStats:
 
 
 def render_markdown(stats: List[RepoStats], overall: RepoStats) -> str:
-    dt = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+    dt = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     lines: List[str] = []
     lines.append("# Benchmark Report")
     lines.append("")
@@ -281,7 +295,7 @@ def render_markdown(stats: List[RepoStats], overall: RepoStats) -> str:
     lines.append("## Overview")
     lines.append("")
     lines.append(
-        "| Repo | Actual | Scan | QA | TP | Partial | FP | FN | Precision | Recall | F1 | P(w/partial) | R(w/partial) | F1(w/partial) |"
+        "| Repo | Truth | AI Scan | QA | TP | Partial | FP | FN | Precision | Recall | F1 | P(w/partial) | R(w/partial) | F1(w/partial) |"
     )
     lines.append(
         "|------|--------|------|----|----|---------|----|----|-----------|--------|----|--------------|--------------|---------------|"
@@ -298,9 +312,9 @@ def render_markdown(stats: List[RepoStats], overall: RepoStats) -> str:
     for s in stats:
         lines.append(f"## {s.repo}")
         lines.append("")
-        lines.append("- **actual findings (truth, excluding QA)**: " + str(s.actual_findings))
+        lines.append("- **actual findings (truth, all severities)**: " + str(s.actual_findings))
         lines.append("- **scan findings (raw)**: " + str(s.scan_findings))
-        lines.append("- **QA findings (truth Info + Best Practices)**: " + str(s.qa_findings))
+        lines.append("- **QA findings (from scan: Info + Best Practices)**: " + str(s.qa_findings))
         lines.append("- **true positives (exact matches)**: " + str(s.matched))
         lines.append("- **partial matches**: " + str(s.partial))
         lines.append("- **false positives (adjusted)**: " + str(s.false_positives))

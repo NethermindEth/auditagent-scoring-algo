@@ -1,0 +1,392 @@
+[
+  {
+    "is_match": true,
+    "is_partial_match": false,
+    "explanation": "The junior auditor\u2019s finding at index 6 accurately identifies the issue in name_service.move\u2019s get_cost_amount (used by register_domain and extend_expiration). It describes reliance on dex::get_spot_price, explains how on-chain price manipulation can lead to underpayment or DoS, matching the verified report.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "High",
+    "index_of_finding_from_junior_auditor": 6,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "The cost to register/extend a domain is computed using a mutable DEX spot price without any safeguards. In get_cost_amount(), the module reads spot_price via dex::get_spot_price and computes price = usd_value / spot_price, then truncates to u64. An attacker can manipulate the on-chain DEX price (e.g., with low liquidity or short-term trades) to drive spot_price artificially high to reduce fees to near zero, or near zero to cause division by a tiny number leading to extremely large costs or even division by zero. This directly impacts register_domain() and extend_expiration(), enabling users to underpay to register/extend or causing those functions to abort (DoS) when spot_price is 0 or the computed BigDecimal overflows u64 during truncate_u64().\n- Where: get_cost_amount() (fee computation using dex::get_spot_price); invoked from register_domain() and extend_expiration().\n- Why: Using an unprotected, manipulable spot price as an oracle is unsafe; no TWAP, min liquidity checks, bounds, or non-manipulable oracle are used. Division by zero or overflow paths can abort transactions.\n- Impact: Loss of protocol revenue (users register/extend at near-zero cost), economic manipulation, and Denial of Service by making registrations/renewals revert when spot_price is 0 or causes overflow."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings identify the forbidden ':' character in the Token ID or the resulting mint() failure in register_domain; the NFT mint DoS issue is entirely missing.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "High",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings identify the incorrect validation in extend_expiration that allows bypassing MAX_EXPIRATION by comparing new_expiration_date - expiration_date instead of against timestamp. The specific core issue and its consequences are not addressed.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "High",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings identify the extend_expiration logic flaw allowing extensions after the grace period has ended; they focus on unrelated issues such as authorization checks and fee calculations.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "High",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": true,
+    "explanation": "The junior finding at index 7 correctly pinpoints the stale name_to_addr and addr_to_name mappings in register_domain of the name_service module, but it describes only DoS aborts in view functions rather than the verified issue\u2019s loss-of-funds scenario caused by get_address_from_name returning the previous owner\u2019s address after re-registration.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": 8,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "extend_expiration() allows any caller to extend the expiration of a domain without verifying ownership of the corresponding token. The function only lowercases the name, looks up the token in name_to_token, computes a new expiration, and charges the caller. No owner check is performed (unlike set_name/update_records/delete_records which enforce ownership).\n- Where: extend_expiration().\n- Why: Missing authorization allows third parties to keep another user's domain from entering the re-registration window by continuously paying the minimum duration, potentially indefinitely preventing others from registering it.\n- Impact: Economic DoS on domain turnover/availability. Attackers can block desirable names from becoming available after grace by repeatedly renewing them at minimal cost. While the attacker pays, this may still be undesirable and against expected authorization semantics."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings address the unintended zero pricing for domain names of length >=7 in get_cost_amount, which enables unlimited free registrations. The closest finding (index 6) discusses price oracle manipulation, not the length-based free cost logic.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The junior auditor's report contains no finding related to the incorrect expiration logic in the multisig contract\u2019s is_proposal_expired function; all reported issues pertain to other modules and functions.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings relate to the incorrect request type in the Skip Protocol oracle query whitelist in app/keepers/keepers.go. All findings address unrelated Move contracts and issues.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings relate to the Rust ModuleBundle::singleton function or the unnecessary clone() performance issue.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings reference the telemetry label mismatch in the Move message server\u2019s JSON handlers in Go. All reported issues pertain to Move modules and functions unrelated to JSON telemetry in msg_server.go, so the verified issue is missing.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings reference the bigdecimal.move contract or its rev() function and none describe the lack of an explicit division-by-zero check in rev(), so the verified issue was not identified.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings address the import of github.com/gogo/protobuf or the removal of the replace directive in go.mod. The verified issue about replacing gogo/protobuf imports with cosmos/gogoproto is not mentioned.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings reference the native_test_only_set_block_info function or the incorrect invocation of set_block_info in block.rs. All findings pertain to Move contract vulnerabilities, not the Rust native method call syntax issue.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings address the inconsistent upgrade name constants in the Go code; all findings relate to Move contracts.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings reference the ed25519.move contract or the public_key_from_bytes function using the wrong error code (PUBLIC_KEY_SIZE instead of E_WRONG_PUBKEY_SIZE), so the verified issue is not identified.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings reference the clean command, validate_manifest function, or the redundant base_path existence check in the Move VM\u2019s clean.rs. All findings pertain to Move modules unrelated to this Rust logic flaw.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The junior auditor's report contains no finding related to the wrong error code in check_name() for maximum name length validation in name_service.move.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings address the withdraw function in vault.move or the lack of balance checks in the vault module.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 0,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "In vote(), the contract computes weight_sum by iterating over the entire weights vector, but then constructs the actual voting pairs using vector::zip_reverse(bridge_ids, weights, ...), which only pairs up to min(len(bridge_ids), len(weights)) and silently drops any extra items. Next, apply_vote() updates per-bridge tallies only for the paired subset, but proposal.total_tally is increased by voting_power_used computed from the full weight_sum of all provided weights. This accounting mismatch allows an attacker to pass many extra weights (with sum close to 1) while providing very few bridge_ids. The result is a large increase to proposal.total_tally without a corresponding increase to any bridge tallies. Later, remove_vote() subtracts only the per-bridge amounts that were actually applied (paired subset), leaving the inflated excess in total_tally. Because execute_proposal_internal() computes each bridge's final weight as tally_i / total_tally, an attacker can inflate the denominator so much that all resulting weights approach zero, effectively nullifying the vote outcome."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 1,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "apply_vote() increments proposal.total_tally by voting_power_used = floor(sum(weights) * max_voting_power), while it increments per-bridge tallies by \u03a3 floor(weight_i * max_voting_power). Due to truncation, floor(sum) can be strictly greater than \u03a3 floor(parts). Conversely, remove_vote() decrements proposal.total_tally by \u03a3 floor(weight_i * max_voting_power). Therefore, a voter can repeatedly toggle between a split-weight vote (with many small weights summing to 1) and a zero-weight vote within the same cycle to accumulate a net increase of [floor(sum) \u2212 \u03a3 floor(parts)] in total_tally each iteration, while restoring bridge tallies back to their prior values. Over time, this inflates the denominator used in execute_proposal_internal(), reducing all computed bridge weights and allowing manipulation of the final outcome."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 2,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "update_params() allows setting min_lock_period_multiplier and max_lock_period_multiplier without validating their relationship. In get_lock_period_multiplier(), the code computes (max_multiplier - min_multiplier); if max_multiplier < min_multiplier, this subtraction underflows and aborts. Because get_lock_period_multiplier() is used inside get_voting_power(), any call that evaluates lock-staked voting power (e.g., vote()) will abort, causing denial of service for affected users or globally if many accounts have lock-staked positions."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 3,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "execute_proposal_internal() computes equal weights as bigdecimal::from_ratio_u64(1, len) when proposal.total_tally == 0. If the whitelisted bridge list is empty (len == 0), this divides by zero and aborts, preventing proposal execution. This can lock the proposal lifecycle and cause a denial of service if configuration or admin actions temporarily leave zero whitelisted bridges."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 4,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The batch_extend entry function validates that the input vectors have the same length using logical OR instead of AND. Specifically, it asserts: len == length(amounts) || len == length(release_times) || len == length(validators) || len == length(new_release_times). This passes if any single vector matches the metadata vector length, allowing others to be shorter. The subsequent loop then does vector::borrow on all vectors up to len, which can read out of bounds and abort the transaction. While state changes are reverted on abort, this is a real input-validation bug that can cause unexpected failures and denial of service for the caller of this function."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 5,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "get_exact_provide_amount calls option::extract(&mut fungible_asset::supply(pair)) without checking that the Option is Some. On a fresh or empty pool where supply is None, this will abort the transaction, preventing provide_delegate from functioning for initial liquidity. This creates a denial-of-service for the provide_delegate/single-asset flows on pools with no existing liquidity."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 7,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "When a domain expires and is reclaimed, the code removes the name_to_token entry but does not clear name_to_addr and addr_to_name. The is_expired(name) helper then blindly unwraps get_valid_token(name) with *option::borrow(...) and will abort if name_to_token no longer contains that name. Both get_name_from_address() and get_address_from_name() call is_expired(name) after confirming the corresponding mapping exists, leading to an abort when the token mapping was removed earlier.\n- Where: register_domain() (expired path removes name_to_token but does not clear name_to_addr/addr_to_name); is_expired() (unchecked option::borrow on get_valid_token(name)); get_name_from_address(); get_address_from_name().\n- Why: Unchecked Option unwrapping on a derived lookup combined with inconsistent state leaves getters aborting instead of returning none when a name was reclaimed.\n- Impact: Denial of Service for on-chain callers or off-chain queries relying on these view functions; any user whose domain expired and was reclaimed can cause lookups to abort for their address/name until mappings are reset by a later set_name."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 9,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "In create_user_vesting(), vest_max_amount is calculated as vesting_reward_amount / (claim_info.end_stage - claim_info.start_stage). If end_stage equals start_stage, this division by zero will abort the transaction. Where: create_user_vesting() (called from batch_claim_user_reward()), at the vest_max_amount calculation. Why: Missing validation that end_stage > start_stage allows malformed claim data to trigger a runtime abort. Impact: Denial of service for user claim processing; the entire batch claim reverts, blocking distribution until corrected input is provided."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 10,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "In batch_claim_operator_reward(), after inserting new operator vestings, the function iterates all operator_vestings with utils::walk_mut and computes: stage_diff = last_submitted_stage - operator_vesting.start_stage and vesting_period = operator_vesting.end_stage - operator_vesting.start_stage. If last_submitted_stage is less than start_stage, stage_diff underflows and aborts. If end_stage equals start_stage, vesting_period is zero and the subsequent utils::mul_div_u64(..., vesting_period) divides by zero. Where: batch_claim_operator_reward(), in the utils::walk_mut closure that calculates reward_amount. Why: Missing validation on stage ordering and last_submitted_stage relative to vesting start. Impact: A single malformed claim (e.g., future-dated start_stage or zero-length vesting) causes the entire operator claim transaction to revert, preventing operator reward distribution and enabling denial of service."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 11,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The batch_claim_operator_reward_script function allows operators to claim rewards up to the latest submitted stage without enforcing the challenge period. Unlike user claims (batch_claim_user_reward_script), which call is_after_challenge_period to ensure the challenge window has passed, the operator path only checks that snapshots exist and builds vesting claim info, then deposits funds. This occurs in batch_claim_operator_reward_script (search for 'batch_claim_operator_reward_script'), where the loop from last_claimed_stage + 1 to last_submitted_stage lacks any check analogous to is_after_challenge_period. As a result, an operator can front-run the challenge window and withdraw rewards immediately after a snapshot is submitted, before challenges can be raised. If a challenge later invalidates or modifies a snapshot, the operator may have already withdrawn funds, leading to potential loss of funds for the protocol or users, and undermining the integrity of the challenge mechanism."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 12,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The create function stores record_keys and record_values without verifying they have equal lengths. Subsequent logic in update_records and delete_records assumes a 1:1 alignment by index. If a Metadata is created with mismatched lengths (e.g., more keys than values), later operations will index into record_values using an index derived from record_keys and can abort with out-of-bounds errors. This can brick record management for the token and cause denial of service for any features relying on updating or deleting records.\n- Where: create(...) (no length checks); impact manifests in update_records(...) and delete_records(...)\n- Why it's a security issue: Invariant violation enables state corruption that leads to reliable aborts in state-mutating functions, effectively DoS\u2019ing record updates/deletions for the affected token.\n- Potential impact: Persistent denial of service for record maintenance; potential downstream app errors if they expect aligned key/value pairs."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 13,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The create function does not enforce the MAX_RECORD limit, while update_records asserts that the total record count must be <= MAX_RECORD. A Metadata resource can therefore be created with more than MAX_RECORD entries. Any later call to update_records (even one that only updates existing keys) will fail the post-condition assert and abort, effectively preventing further updates until records are reduced via delete_records.\n- Where: create(...); check is only present in update_records(...)\n- Why it's a security issue: A malicious or buggy creation path can permanently lock out record updates for that token by exceeding the limit at creation time.\n- Potential impact: Denial of service for future updates to records; potential unexpected behavior in applications expecting the MAX_RECORD invariant."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 14,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The helper functions mul_div_u64 and mul_div_u128 perform a*b/c without validating that c != 0. If these are called with c == 0, the operation will abort, reverting the entire transaction. Where: mul_div_u64() and mul_div_u128() (near their definitions). Why it's a security issue: If these helpers are used in higher-level logic with attacker-controlled inputs (common for math utilities), an attacker can cause predictable transaction aborts, resulting in denial-of-service for that code path. Potential impact: Transaction-level DoS for any caller using these helpers without pre-checks; broader protocol DoS if such helpers are used in critical flows."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 15,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "get_voting_power and get_customized_voting_power borrow weights from a map using simple_map::borrow(&weight_map, &denom) without verifying that the denom exists in the weight map. If a delegation contains a denom that is missing from voting_power_weights, this borrow will abort. Where: get_voting_power() inside the balance loop (let weight = simple_map::borrow(&weight_map, &denom)); get_customized_voting_power() similarly. Why it's a security issue: The denominations come from external Stargate queries, so unexpected or newly introduced denoms can trigger an abort. An attacker that can influence delegations/denoms (e.g., by delegating staking tokens with different denom or causing anomalous query responses) can cause any transaction invoking these functions to revert. Potential impact: Transaction-level DoS for any functionality depending on voting power computation; potential protocol disruption if these helpers are used in system-critical flows."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 16,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "get_delegations paginates and appends all DelegationResponse entries into a vector without limiting the number of pages or items. An address with a very large number of delegations or balances can cause excessive iteration, memory growth, and gas consumption. Where: get_delegations(), loop over pagination with vector::append of response.delegation_responses. Why it's a security issue: An attacker can create many small delegations across validators to inflate the number of records. Any function that calls get_delegations (directly or via get_voting_power/get_customized_voting_power) on such an address may consistently run out of gas and revert. Potential impact: Transaction-level DoS and potential disruption of batch or maintenance operations that rely on processing delegations."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 17,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "total_voting_power is a u64 and is incremented by values derived from bigdecimal::mul_by_u64_truncate for each balance across all delegations. With sufficiently large amounts and/or many entries, the sum can overflow u64 and abort. Where: get_voting_power() and get_customized_voting_power(), accumulation into total_voting_power. Why it's a security issue: The amounts and number of items are influenced by on-chain state returned via external queries. An attacker with large balances or numerous delegations can trigger overflow and cause a revert. Potential impact: Transaction-level DoS for any computation depending on these helpers."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 18,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "Any user who has (or creates) a delegation can arbitrarily set a reward for themselves using set_reward, then immediately withdraw it from the module\u2019s extension signer via withdraw_delegations_reward. There is no access control or cap on the reward amount. The transfer in withdraw_delegations_reward sends real coins from the test signer (object::generate_signer_for_extending) to the delegator using coin::transfer, enabling draining of that account if it holds funds. This occurs in set_reward() (public, no authorization checks) and withdraw_delegations_reward() where it reads the reward and transfers coin.amount to the delegator."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 19,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "In slash_redelegations, after computing slashing_coins for a redelegation, the code iterates over all delegations for the destination validator and subtracts the entire slashing_coins from each delegation indiscriminately (new_balances = sub_coins(balances, slashing_coins)). slashing_coins is not decremented across delegations, causing unrelated delegators on the destination validator to be over-slashed. Additionally, sub_coins assumes a.amount >= b.amount per denom; if any delegation balance is smaller than slashing_coins, subtraction underflows and aborts, causing a denial of service. This misapplication of slashing can corrupt delegation data and/or revert execution."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 20,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "Within slash_redelegations, after adjusting a delegation on the destination validator, the code attempts to update the delegator's DelegatorDelegations list by searching for an entry where validator_address == validator_addr (the slashed source validator) instead of dst_validator_addr. The result of vector::find is not checked and the code proceeds to vector::remove using the returned index. If not found, the index may be invalid, leading to an out-of-bounds removal and abort, or removal of the wrong entry, corrupting the delegator\u2019s delegation state."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 21,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "slash() is public and accepts an arbitrary slash_factor. In slash_delegations, slashing_amount = mul_by_u64_truncate(slash_factor, balance.amount) is subtracted unconditionally from balance.amount (reserve = balance.amount - slashing_amount). If slash_factor > 1, slashing_amount can exceed balance.amount, causing a u64 underflow and abort, leading to a denial of service. There is no validation that slash_factor is within [0, 1]."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 22,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The module validates that commission-related values are <= 1 but does not enforce non-negativity. Specifically, check_valid_rate only asserts rate <= 1, and update_operator_commission does not call check_valid_rate at all. As a result, during registration and subsequent updates, commission_rate (and even commission_max_rate and commission_max_change_rate at registration) can be negative. Locations: check_valid_rate(), check_valid_commission_rates(), register_operator_store(), update_operator_commission(). This is a security issue because BigDecimal is signed, and allowing negative commission rates can invert fee flows or cause incorrect accounting when these values are later used in financial calculations by other modules (e.g., paying out more than intended or extracting funds by setting a negative fee). Potential impact includes loss of funds, protocol manipulation, or data corruption in downstream logic relying on commission invariants."
+  }
+]

@@ -1,0 +1,242 @@
+[
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings identify the misconfigured quorum in the TokenGovernor.sol constructor (GovernorVotesQuorumFraction(4) instead of 25%), so the verified issue is not found.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "High",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings identify the issue where an arbitrary user can deploy a new FraxSwapPair with a low fee (0.01%) prior to moveLiquidity, leading to protocol fee losses. They instead cover bytecode injection, ERC20 safety, division-by-zero DoS, fee-on-transfer tokens, slippage, and other topics.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings describe the DOS vulnerability in LiquidityManager.moveLiquidity caused by attacker token injection inflating liquidityAmount and causing an ERC20InsufficientBalance revert. Finding 3 describes a different DOS (division by zero) and none mention the core issue.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": true,
+    "is_partial_match": false,
+    "explanation": "The junior auditor\u2019s finding at index 0 correctly identifies the TokenGovernor.sol contract and the setProposalThresholdPercentage function and accurately describes that the function checks the existing stored value instead of the new input, allowing arbitrary high thresholds and leading to a governance DoS. It also outlines the potential impact of bricking governance. This aligns fully with the verified issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": 10,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "In setProposalThresholdPercentage, the cap check compares the existing stored value (proposalThresholdPercentage) instead of the supplied parameter (_proposalThresholdPercentage). As a result, the intended max cap of 10% (1000 in 1e4 base) is not enforced for new values. A successful governance proposal can set proposalThresholdPercentage to any value, including values far above 10%, e.g., >= 10,000 (100%), or even much larger. Since proposalThreshold() computes threshold as pastTotalSupply * proposalThresholdPercentage / 10_000, setting an excessively large percentage can make the proposal threshold exceed the total supply, preventing any future proposals from being created (governance DoS).\n- Where: setProposalThresholdPercentage(uint32 _proposalThresholdPercentage)\n- Why it's a security issue: Removes the intended safety bound, enabling a passed proposal to permanently brick governance by making future proposals impossible.\n- Potential impact: Permanent denial of governance proposals; inability to change parameters or recover without external upgrade mechanisms."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor findings identify the missing tokenId existence check in the Agent.setTokenURI function.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": true,
+    "is_partial_match": false,
+    "explanation": "The junior auditor\u2019s finding at index 8 correctly identifies the missing slippage protection in the BootstrapPool contract\u2019s buy() and sell() functions, describes the absence of minOut/maxIn parameters, and outlines the risk of front-running/sandwich attacks, matching the verified issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": 8,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "The swap functions accept only the input amount and (optionally) the recipient, with no minOut/maxIn or deadline parameters. Attackers can front-run user transactions to move the price (including via transient donations), causing users to receive significantly worse rates (classic sandwich attack). While common in simplistic AMMs, the lack of slippage bounds exposes end users to avoidable loss of funds due to MEV."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings identify the issue in AgentRouter where its currencyToken is only set once in the constructor and never updated when AgentFactory.setCurrencyToken() is called, causing broken swap functionality.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": true,
+    "is_partial_match": false,
+    "explanation": "The finding correctly identifies setProposalThresholdPercentage in TokenGovernor.sol, explains that the cap check uses the state variable instead of the parameter, and describes how this allows setting an excessive threshold that permanently bricks governance proposals.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": 12,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "The mint function allows the owner (set to the provided Agent address) to mint an arbitrary amount of tokens to any address without any cap or constraints. This occurs in the mint(address to, uint256 amount) function. If the owner contract/account is malicious or compromised, it can arbitrarily inflate the token supply, causing severe dilution of existing holders and potential downstream loss of funds if the token is used as collateral or in other protocols."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The junior auditor\u2019s report does not include any finding that identifies the owner\u2019s ability to brick moveLiquidity by advancing the agent stage before liquidity movement. None of the findings reference the setAgentStage/setStage check or the owner misordering that causes moveLiquidity to always revert.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 0,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The factory owner can arbitrarily set the raw creation bytecode used for deploying Agent, Governor, and LiquidityManager via create2. Specifically, setGovenerBytecode(), setAgentBytecode(), and setLiquidityManagerBytecode() allow the owner to replace the creation code at any time. createAgent() then deploys these components using that bytecode (deployAgent, deployGovernor, deployLiquidityManager). This enables deploying malicious contracts (e.g., a LiquidityManager/bootstrapPool that siphons the user's _amountToBuy tokens during buy(), or an Agent/Governor that grants the owner backdoors or drains token supplies). Because createAgent transfers user funds (creationFee and potentially _amountToBuy) before or around these deployments and subsequently interacts with the newly deployed contracts, a malicious bytecode can directly cause loss of user funds, unauthorized access, or protocol manipulation. Impact: theft of user funds at creation, privilege escalation over agents/tokens, and arbitrary behavior by core components."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 1,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "createAgent() collects the creation fee using currencyToken.transferFrom(msg.sender, address(this), creationFee) without SafeERC20. Many widely used ERC20s are non-standard in their return behavior (e.g., return no boolean or return false), which can cause low-level revert or silent failure when using the raw interface. This can prevent agent creation for such tokens, effectively causing a denial of service for users when the factory is configured to use a non-compliant currency token. Impact: users are unable to create agents if currencyToken is non-standard, despite having sufficient allowance/balance."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 2,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "createAgent() uses currencyToken.approve(address(manager.bootstrapPool()), _amountToBuy) directly and ignores the returned boolean. For non-compliant ERC20s (which may not return a boolean or may require allowance to be zero before setting a non-zero value), this can fail or behave unexpectedly. While this specific call is from an initial zero allowance to a non-zero value (so typical approval race issues are less likely), compatibility issues can still lead to revert or failed approvals and thus revert the agent creation flow. Using SafeERC20.safeApprove/safeIncreaseAllowance would provide robust handling. Impact: potential denial of service in environments with non-standard ERC20s as currencyToken."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 3,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The addLiquidityToFraxswap function assumes non-zero reserves after a 'mini mint' when a Fraxswap pair already exists. In the existing-pair branch, it performs a ratio check using (currencyAmount * reserveAgentTokens) / reserveCurrency. If reserveCurrency is zero, this division reverts. This can occur if an attacker pre-creates the pair via the factory but leaves it empty (reserves both zero), or if the 'mini mint' transfers zero on one or both sides due to small balances (liquidityAmount/1_000_000 or currencyAmount/1_000_000 rounds to zero). Location: addLiquidityToFraxswap(), in the else branch after the mini-mint, at the condition 'if ((currencyAmount * uint256(reserveAgentTokens)) / uint256(reserveCurrency) > liquidityAmount) { ... }'. Additionally, getMaxSell() divides by (reserveOut + tokenOut); if both are zero it can also revert under similar conditions. Why it's a security issue: A malicious actor can front-run moveLiquidity by creating the pair (with zero liquidity) so getPair() returns a non-zero address, forcing the existing-pair path. If the contract\u2019s balances are small enough that the mini-mint transfers zero on one or both sides, reserveCurrency remains zero and the subsequent division reverts, causing a denial of service. Potential impact: Prevents moveLiquidity from executing (DoS), delaying or blocking the protocol\u2019s transition from the bootstrap pool to Fraxswap until balances become large enough or special handling is added."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 4,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The contract computes swap amounts using the nominal _amountIn before performing token transfers and without adjusting for the actual net tokens received. In buy(), amountOut is computed from _amountIn and fees are accrued from _amountIn, then currencyToken.safeTransferFrom is executed; if currencyToken is fee-on-transfer/deflationary, the pool actually receives less than _amountIn but still pays out the full agentToken amountOut. Similarly, in sell(), amountOut is computed from _amountIn before agentToken.safeTransferFrom; a deflationary/malicious agentToken can deliver fewer tokens than _amountIn while the pool still pays the full currencyToken amountOut. The only post-check in sell() (currencyToken.balanceOf(this) >= currencyTokenFeeEarned) protects only the fee reserve, not the remaining liquidity, allowing attackers to drain liquidity up to that threshold. This occurs in buy(uint256,address) and sell(uint256,address). Because SafeERC20 does not normalize deflationary semantics, a malicious or fee-on-transfer token can exploit this to extract value from the pool."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 5,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The contract attempts to reserve accrued fees by subtracting them from reserves in getReserves(). After sells, it enforces currencyToken.balanceOf(this) >= currencyTokenFeeEarned, ensuring currency fees aren\u2019t accidentally spent. However, in buy(uint256,address) there is no analogous check for the agent token. A trader can buy agent tokens until agentToken.balanceOf(this) < agentTokenFeeEarned, effectively consuming the accrued agent-token fees. This breaks the reserve invariant and causes getReserves() to underflow (agentToken.balanceOf(this) - agentTokenFeeEarned), making any subsequent call that depends on getReserves() (getAmountOut, getAmountIn, getPrice) revert, resulting in a denial of service. It also steals fees intended for the fee recipient. The issue occurs in buy(uint256,address) (missing post-trade invariant check) and manifests in getReserves() arithmetic."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 6,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "getPrice() derives price directly from current token balances via getReserves() (which uses raw balanceOf values with a virtual currency reserve). Anyone can manipulate these balances by donating tokens directly to the pool (without calling buy/sell), instantly skewing the reported price. There is no mechanism to sanitize or sync external transfers. Any integrator using getPrice() as a price oracle can be economically attacked (e.g., manipulate price on-chain and exploit downstream logic that trusts it)."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 7,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The internal _sweepFees() calls LiquidityManager(owner).owner() to fetch the fee recipient. If owner is an EOA or a contract without a compatible owner() function or one that reverts, the external call will revert when decoding the return data. This makes sweepFees() and kill() (which calls _sweepFees() first) permanently revert, preventing fee withdrawal and pool shutdown, effectively locking fees and potentially operationally bricking administrative controls."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 9,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "In the Fraxswap execution path of both buy() and sell(), the router calculates _amountOut using pair.getAmountOut(...) and later performs the swap. After the external call, it compares the precomputed _amountOut to _minAmountOut. If the output token charges a transfer fee (fee-on-transfer/deflationary), the actual amount received by the _recipient will be less than _amountOut, but the router's check still passes because it compares the quoted amount, not the real received amount. This allows trades to succeed while delivering less than the user-specified minimum.\n\nWhere it occurs:\n- buy(address _agentToken, uint256 _amountIn, uint256 _minAmountOut, address _recipient): Fraxswap branch (when bootstrapPool.killed() is true) \u2014 the sequence: sync() -> getAmountOut(...) -> transferFrom to pair -> swap(...) followed by `if (_amountOut < _minAmountOut) revert InsufficientAmountOut();`\n- sell(address _agentToken, uint256 _amountIn, uint256 _minAmountOut, address _recipient): Fraxswap branch \u2014 analogous flow and final check.\n\nWhy it's a security issue: Users rely on _minAmountOut for slippage protection. With fee-on-transfer tokens, the output sent to _recipient can be lower than the quoted _amountOut, meaning the slippage check does not reflect the actual received amount.\n\nPotential impact: Users can receive less than their specified minimum amounts, leading to loss of funds compared to expectations. This affects scenarios where either the agent token or the currency token is fee-on-transfer when it is the output asset of the swap."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 11,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The contract mixes timestamp-based values with Governor/IVotes clock assumptions:\n- proposalThreshold() calls token().getPastTotalSupply(Time.timestamp() - 1). If the IVotes token uses a block-number clock (e.g., ERC20Votes), passing a timestamp as the timepoint will be incompatible and can revert (future lookup), causing propose() and any call that reads proposalThreshold() to fail (DoS).\n- votingDelay() and votingPeriod() return values described and set as seconds, but GovernorVotes makes the Governor use the token's clock. If the token clock is block-number based, these values are interpreted as blocks, not seconds, producing much longer/shorter voting windows than intended (e.g., 30 days in seconds interpreted as that many blocks), which can lead to effective governance DoS or manipulation of governance cadence.\n- Where: proposalThreshold(), votingDelay(), votingPeriod()\n- Why it's a security issue: With a block-based IVotes token, proposalThreshold() may revert, blocking proposals entirely. Misinterpreted durations can create excessively long or short voting phases, undermining governance guarantees.\n- Potential impact: Denial of service for proposing; governance windows drastically different from intended, enabling protocol manipulation or stalling."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 13,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The burn function allows the owner to burn tokens from any address without requiring allowance or the holder's consent. This occurs in the burn(address from, uint256 amount) function, which directly calls _burn(from, amount). A compromised or malicious owner can arbitrarily destroy user funds, resulting in direct loss to affected token holders."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 14,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The contract overrides the voting clock to use block timestamps via Time.timestamp(), which can be slightly manipulated by block producers within typical consensus tolerances. This occurs in clock() and CLOCK_MODE(). While the impact is limited to governance, it may allow marginal manipulation at voting period boundaries or snapshot times if votes control protocol parameters or funds."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 15,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The Agent contract inherits a full ERC721 implementation (via ERC721URIStorage) and also acts as a generic proxy (OpenZeppelin Proxy). Any call with an unknown selector will be delegated to the implementation returned by _implementation(). Because delegatecall executes in the Agent's storage context, any state writes performed by the implementation will write into Agent's storage (which includes ERC721 mappings/balances/approvals, Ownable owner, proxyImplementation, stage, etc.). If an allowed implementation is not explicitly designed to respect Agent\u2019s storage layout (e.g., using a dedicated diamond storage slot or exact layout alignment), arbitrary external callers can invoke implementation functions that unintentionally or intentionally corrupt core ERC721 state (balances/owners), overwrite Ownable ownership, or directly modify critical variables such as proxyImplementation or stage, bypassing Agent\u2019s access controls and checks. This can lead to unauthorized transfer or theft of the NFT, privilege escalation (changing owner), denial of service, and general data corruption.\n- Where: Proxy fallback/delegatecall path via OpenZeppelin Proxy (any unknown selector); _implementation() function determines target; all delegated functions execute in Agent storage.\n- Why it's a security issue: Storage collision between the implementation\u2019s assumed layout and Agent\u2019s real layout can corrupt ownership/balances and critical control variables. Any public function in the implementation lacking strict access control could mutate Agent\u2019s storage, bypassing onlyOwner/onlyFactory/onlyWhenAlive guards present in Agent.\n- Potential impact: Unauthorized NFT ownership changes and transfers, privilege escalation by overwriting Ownable owner, arbitrary upgrade by setting proxyImplementation, bricking or corrupting ERC721 state."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 16,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "Agent declares its own receive() external payable {} function. OpenZeppelin Proxy normally delegates both fallback() and receive() to the implementation. By overriding receive() without delegating to _fallback(), ETH sent with empty calldata will be consumed by Agent and will not trigger any implementation logic. If the implementation relies on receive() to update accounting, emit events, or enforce invariants on deposits, those will be skipped. This can cause inconsistent state, stuck-accounting, or denial of service in protocols that expect delegated receive-path processing.\n- Where: receive() function.\n- Why it's a security issue: Implementation deposit logic on plain ETH transfers will never run, potentially breaking protocol assumptions and causing DoS or funds/accounting desynchronization.\n- Potential impact: Denial of service for deposit flows, broken invariants, and potential fund/accounting mismatches."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 17,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "_implementation() returns proxyImplementation if set, otherwise factory.defaultProxyImplementation(). There is no check that the resolved address is nonzero. If factory.defaultProxyImplementation() is misconfigured to return address(0) (or proxyImplementation is set to address(0) while factory also returns address(0)), the Proxy fallback will attempt to delegatecall to the zero address and revert, bricking all delegated functionality.\n- Where: _implementation() function and Proxy fallback.\n- Why it's a security issue: Misconfiguration leads to permanent revert of all delegated calls, causing denial of service for any functionality implemented via the proxy.\n- Potential impact: Denial of service for all proxied functions."
+  }
+]

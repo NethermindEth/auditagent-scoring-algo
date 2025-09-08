@@ -1,0 +1,282 @@
+[
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings mention the lock_escrow account pre-creation leading to a DoS in lock_pool; they identify other issues in lock_pool (CPI program verification) but not the verified DoS issue.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "High",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": true,
+    "is_partial_match": false,
+    "explanation": "The junior auditor's finding at index 9 correctly identifies that in global.rs the update_settings function fails to write the migration_token_allocation from GlobalSettingsInput to the Global struct, matching the verified issue\u2019s core problem and its impact on downstream logic.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "High",
+    "index_of_finding_from_junior_auditor": 9,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "GlobalSettingsInput includes migration_token_allocation and validate_settings() uses it to enforce that token_total_supply - migration_token_allocation > initial_real_token_reserves. However, update_settings() does not write the provided migration_token_allocation to self.migration_token_allocation. This allows the Global account to pass validation with a proposed allocation while keeping the old stored allocation, breaking the invariant assumed by validation. Downstream logic that relies on self.migration_token_allocation may then operate with an incompatible value relative to the newly updated supply/reserve parameters, potentially causing over-allocation, underflows, or denial of service depending on how the field is used elsewhere."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings address the last-buy fee miscalculation in curve.rs (recomputing SOL after price adjustment and recalculating fees), so the verified issue was not identified.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings describe the incorrect SOL balance comparison due to rent inclusion in the bonding curve invariant check in curve.rs. They either target different functions or describe unrelated core issues (e.g., token account spoofing), so no match is found.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings identify the abrupt fee discontinuity at the transition from Phase 2 to Phase 3 in calculate_fee (curve.rs), nor the miscalibrated linear decrease formula causing the 7.76% drop at slot 251.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings identify the unvalidated transfer of all remaining escrow lamports to the fee receiver in lock_pool() or the missing validation against migrate_fee_amount.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings address the rounding error in Phase 2 fee calculation in calculate_fee() relating to integer division ordering and precision loss.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings identify the lack of maximum input amount validation in the swap.validate() function. Finding at index 6 pertains to arithmetic underflow in buy/sell paths, not missing upper\u2010bound checks, so the verified issue is not covered.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u0019s findings identify the missing URI validation in the initialize_meta() function of CreateBondingCurve; they cover unrelated issues.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "No junior auditor finding addresses the hardcoded 0.04 SOL gas fee in initialize_pool_with_config() causing potential transaction failures or excess fees; the issue is not identified.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": true,
+    "explanation": "The junior auditor correctly identifies util.rs and the bps_mul function\u2019s lack of input validation on divisor leading to failure, but focuses solely on unwrap-induced panic (DoS) for a zero divisor. They do not mention silent failures via the Option return type or missing validation for bps > divisor, which are key parts of the verified issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": 2,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "The function bps_mul calls bps_mul_raw(...).unwrap(), which will panic if bps_mul_raw returns None. In bps_mul_raw, the computation uses checked_div(divisor as u128), which returns None when divisor == 0. Therefore, passing a zero divisor into bps_mul leads to a panic. Location: bps_mul() function, unwrap on approximately line 4; root cause in bps_mul_raw() checked_div on approximately lines 7-9. In smart contract contexts, panics abort the transaction. If an attacker can influence the divisor (e.g., via user input or unvalidated parameters), they can reliably trigger a panic, causing denial of service for that code path (e.g., revert entire batch operations, block progress of a transaction, or grief other users by making calls fail)."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings identify the redundant Clock::get() calls in the handler() function or the lack of block time validation for emitted trade events, which is the core of the verified issue.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings address the unbounded metadata field lengths (name, symbol, uri) in CreateBondingCurveParams, so the verified issue was not identified.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "No junior auditor finding identifies the lack of event emission in lock_ata and unlock_ata functions of BondingCurveLockerCtx.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": true,
+    "is_partial_match": false,
+    "explanation": "The junior auditor\u2019s third finding accurately identifies the remove_wl function in the contract (lib.rs), describes that it is a no-op returning Ok(()) without modifying the whitelist, and explains the security consequences of being unable to revoke whitelist privileges.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings mention or address the hardcoded program IDs in the constants file or the associated deployment inflexibility and testing challenges.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings describe the missing PDA and ownership validation for the lock_escrow and escrow_vault accounts in the lock_pool instruction, which is the core of the verified issue.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 0,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The methods lock_ata() and unlock_ata() perform SPL Token freeze_account and thaw_account CPIs using the program\u2019s PDA authority (bonding_curve) without enforcing any caller authorization or constraining which token account can be targeted. If the instruction that constructs BondingCurveLockerCtx exposes bonding_curve_token_account as an arbitrary account, a malicious caller can pass any user's token account for the same mint and cause the program to freeze it (DoS) or thaw it, since the PDA is the mint\u2019s freeze authority. This occurs in locker.rs: lock_ata() and unlock_ata(). Impact: attacker can freeze victim token accounts for the mint (preventing transfers) or prematurely thaw accounts the protocol intended to keep locked, disrupting protocol mechanics."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 1,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The methods revoke_mint_authority() and revoke_freeze_authority() call token::set_authority with new authority = None, permanently revoking the mint\u2019s MintTokens and FreezeAccount authorities using the program PDA as signer. There are no checks here to ensure only an authorized admin or expected program state transition can invoke these operations. If exposed without strict access control in the calling instruction, any user could trigger these functions, irreversibly bricking minting (protocol cannot mint for bonding curve operations) or removing freeze control (or, if accounts are currently frozen, leaving them permanently frozen). This occurs in locker.rs: revoke_mint_authority() and revoke_freeze_authority(). Impact: protocol corruption/DoS, permanent loss of control over the token mint and freeze state, potentially trapping user funds in frozen accounts or halting protocol mint/redemption flows."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 3,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "In lock_pool(), the program performs a CPI to the SPL Associated Token Program via associated_token::create_idempotent without verifying that the provided associated_token_program account is the canonical SPL Associated Token Program ID. Because payer is a Signer and is forwarded as the 'payer' account to this CPI, a malicious associated token program supplied by an attacker could execute arbitrary inner instructions using the payer\u2019s signature. For example, it could invoke the System Program to transfer lamports from the payer to another account included in the CPI accounts (e.g., the provided escrow_vault or lock_escrow), draining funds. This occurs in lock_pool() at the associated_token::create_idempotent call where ctx.accounts.associated_token_program is used unchecked. This is a security issue because it enables a confused-deputy attack: the contract grants an untrusted program the ability to act with the payer\u2019s signature over the provided accounts, leading to potential theft of lamports or other malicious side effects. Impact: loss of payer funds and unexpected account creations or mutations."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 4,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "In calculate_fee, the line 'let slots_passed = current_slot - start_slot;' performs unchecked subtraction on u64. If current_slot < start_slot (e.g., fee computation is invoked before the curve starts), this underflows and wraps to a very large number. The subsequent branching then falls into the '> 250' case, charging only 1% fee instead of the intended 99% early-phase fee. This can be exploited to significantly underpay fees prior to the start slot or whenever an earlier slot value is used. Impact: protocol manipulation and potential loss of protocol fees. Location: calculate_fee() function, around the computation of 'slots_passed'."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 5,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The invariant function only checks that the provided token account's owner equals the BondingCurve account ('tkn_account.owner != bonding_curve.key()') and then uses its balance for critical consistency checks. SPL Token accounts' 'owner' field can be set arbitrarily at creation; an attacker can create a token account with owner set to the bonding curve PDA and pass it to invariant. Because the invariant does not validate that the token account's mint matches bonding_curve.mint nor that the account is the expected PDA-derived token account, the attacker can spoof balances to satisfy the invariant. If other instructions rely on this invariant to authorize operations (e.g., SOL withdrawals from escrow or state transitions), this can enable unauthorized actions or mis-accounting, potentially leading to loss of funds or protocol manipulation. Location: invariant() function."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 6,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The program performs plain u64 subtraction when computing net input/output after fees without guarding against underflow. Specifically: (1) In the buy branch of handler(), it computes `buy_amount_applied = exact_in_amount - fee_lamports`. If `fee_lamports > exact_in_amount`, this underflows and wraps to a very large u64 in release builds, producing an unintended, massive input to `apply_buy`. (2) In complete_sell(), it computes `sell_amount_minus_fee = sell_result.sol_amount - fee_lamports`. If `fee_lamports > sell_result.sol_amount`, this underflows and wraps to a very large u64. Why it's a security issue: Wrapped values can cause incorrect amount calculations. In the buy path, this can violate exact-in semantics and charge the user more lamports than `exact_in_amount` (because the program later pulls `buy_result.sol_amount` lamports from the user plus `fee_lamports`, without ensuring `fee_lamports <= exact_in_amount`). In both buy and sell paths, wrapped values can also cause subsequent SOL transfers to attempt moving an impossibly large amount, leading to transaction failure (DoS for the caller). Potential impact: - Loss of funds: Users can be overcharged beyond their intended `exact_in_amount` if `calculate_fee` returns more than the input. - Denial of service: Wrapped amounts will trigger failing system transfers (insufficient funds), reverting the transaction. Where it occurs: - handler() buy branch: statement `buy_amount_applied = exact_in_amount - fee_lamports` - complete_sell(): statement `sell_amount_minus_fee = sell_result.sol_amount - fee_lamports`"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 7,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The instruction accepts multiple critical program accounts as UncheckedAccount without verifying their program IDs and then invokes them via CPI while providing signer privileges and payer funds. Specifically: (1) system_program is UncheckedAccount and is used implicitly by the init directives to create the mint and bonding_curve accounts with payer = creator; (2) associated_token_program is UncheckedAccount and is used by init_if_needed, associated_token to create the bonding_curve_token_account with payer = creator; (3) token_metadata_program is UncheckedAccount and is invoked in intialize_meta() using create_metadata_accounts_v3, passing creator (a signer) and system_program, and granting the bonding_curve PDA signer privileges via invoke_signed. If any of these accounts are spoofed to a malicious program, that program can perform arbitrary CPIs (e.g., SystemProgram::transfer) using the creator signer to transfer SOL to attacker-controlled accounts, causing immediate fund loss. It can also create/assign arbitrary accounts and manipulate metadata, leading to protocol misuse.\nWhere: CreateBondingCurve accounts struct fields system_program, associated_token_program, token_metadata_program; used by account initializers (init, init_if_needed) and in intialize_meta().\nWhy it's a security issue: Invoking an attacker-controlled program with signer privileges and payer funds enables theft of the creator's SOL and other unauthorized actions.\nPotential impact: Immediate loss of all lamports from the creator/payer; creation of fraudulent metadata; denial-of-service."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 8,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "A validate method is defined to enforce critical business rules (start_slot bounds, whitelist enforcement when global.whitelist_enabled is true, and configuration freshness via global.is_config_outdated), but it is never called from the handler. Anchor does not automatically call this custom validate() function; thus these checks are effectively dead code and not enforced at runtime.\nWhere: CreateBondingCurve::validate() and CreateBondingCurve::handler() (no call to validate).\nWhy it's a security issue: Intended access-control and parameter constraints are bypassed, enabling unauthorized users to create bonding curves even when whitelisting is enabled and allowing out-of-policy start times or outdated configs.\nPotential impact: Unauthorized access/creation, protocol rule bypass, potential ecosystem or market manipulation, and denial-of-service through spam creations."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 10,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "update_settings() takes a slot parameter and assigns it directly to last_updated_slot. is_config_outdated() then compares last_updated_slot with the LastRestartSlot sysvar to determine staleness. If an instruction handler forwards an untrusted client-supplied slot or lacks strict authority checks, an attacker could set last_updated_slot to a very large value, causing is_config_outdated() to return false even after cluster restarts and bypass any logic that relies on this freshness check. To mitigate, derive the slot from the Clock sysvar within the program (not from user input) before calling update_settings()."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 11,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "update_authority() sets global_authority and migration_authority to the provided values without validation. This permits setting either to Pubkey::default(), which can permanently lock configuration or migration actions if no alternative control path exists. If an attacker ever reaches this method due to misconfigured access control at the instruction level, they could cause a denial of service by nullifying authorities. Even legitimate operators could accidentally brick admin functions. Consider disallowing zero pubkeys except via an explicit 'renounce' flow with additional safeguards."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 12,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The remove_wl instruction is implemented as a no-op and does not call the expected handler nor modify any whitelist state. Specifically, the function remove_wl(_ctx: Context<RemoveWl>) -> Result<()> simply returns Ok(()) without performing any action. As a result, any previously whitelisted address cannot be removed, making whitelist privileges effectively permanent. If whitelist membership gates privileged operations (e.g., creating bonding curves, pool management, or parameter changes), this leads to the inability to revoke access from compromised or malicious accounts, enabling unauthorized continued access and potential protocol manipulation."
+  }
+]

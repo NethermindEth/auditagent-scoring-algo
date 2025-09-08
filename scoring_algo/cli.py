@@ -38,7 +38,7 @@ def evaluate(
     def run_one(name: str):
         name = name.replace(".json", "")
         print(
-            f"[bold green]Running evaluation[/bold green] repo={name} model={cfg.MODEL} iter={cfg.ITERATIONS} batch={cfg.BATCH_SIZE}"
+            f"[bold green]Running evaluation[/bold green] repo={name} model={cfg.MODEL} iter={cfg.ITERATIONS} batch={cfg.BATCH_SIZE}"  # noqa E501
         )
         scan_path = get_scan_path(name, data_root, cfg.SCAN_SOURCE)
         truth_path = get_truth_path(name, data_root)
@@ -46,6 +46,7 @@ def evaluate(
             raise typer.BadParameter(f"Scan results not found: {scan_path}")
         if not truth_path.exists():
             raise typer.BadParameter(f"Truth file not found: {truth_path}")
+
         run_evaluation(
             repo_name=name,
             data_root=data_root,
