@@ -2,7 +2,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor\u2019s findings describe the logical flaw in claimStakeRewards() and unstake() that allows validators to bypass delegators and redirect rewards/funds to themselves. The issue was not identified in the report.",
+    "explanation": "None of the junior auditor findings identify the logical flaw in the claimStakeRewards() and unstake() functions that allows validators to bypass delegators for staking rewards in the ConsensusRegistry contract.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "High",
     "index_of_finding_from_junior_auditor": -1,
@@ -12,7 +12,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings reference the getValidators function or describe the issue of missing validators due to token ID gaps after burning ConsensusNFTs. The verified issue was not identified.",
+    "explanation": "None of the junior auditor's findings mention the getValidators() function or the issue of missing validator entries due to token ID gaps after burns. The specific ground truth issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "High",
     "index_of_finding_from_junior_auditor": -1,
@@ -22,7 +22,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor\u2019s findings mention the consensusBurn()/applySlashes() missing balance reset issue or its consequences; there is no finding that identifies the missing zeroing of the validator\u2019s balance before unstaking.",
+    "explanation": "None of the junior auditor's findings address the missing balance reset in consensusBurn or the associated slashing bypass in applySlashes, so there is no match.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "High",
     "index_of_finding_from_junior_auditor": -1,
@@ -32,7 +32,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor\u2019s findings address the change-of-epoch issuance configuration taking effect in the current epoch. They cover unrelated issues (ETH transfers, reentrancy, committee size, etc.) and do not mention StakeConfig or issuance version timing.",
+    "explanation": "None of the junior auditor's findings address the epoch issuance configuration update issue where new issuance values take effect in the current epoch, leading to unexpected reward calculations.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": -1,
@@ -42,7 +42,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings identify the missing BLS public key uniqueness check in ConsensusRegistry; they discuss unrelated issues (committee size, token ID truncation) and do not describe the core problem or consequences of duplicate BLS keys.",
+    "explanation": "None of the junior auditor's findings mention the missing BLS public key uniqueness check in the ConsensusRegistry.recordStaked function allowing duplicate validator keys.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": -1,
@@ -52,7 +52,7 @@
   {
     "is_match": true,
     "is_partial_match": false,
-    "explanation": "The junior auditor correctly identifies the InterchainTEL.sol contract\u2019s permitWrap() function being payable but ignoring msg.value, describes that ETH sent will be trapped and lost, matching the verified issue.",
+    "explanation": "The junior auditor's finding at index 9 correctly identifies the permitWrap function in InterchainTEL.sol as payable but ignoring msg.value, causing any ETH sent to be trapped and lost, matching the verified issue's core problem and consequences.",
     "severity_from_junior_auditor": "Medium",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": 9,
@@ -62,7 +62,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings address the stake function or the mismatched parameter validation in stakeConfig; all reported issues concern different functions (e.g., _unstake, distributeStakeReward) or unrelated contracts.",
+    "explanation": "None of the junior auditor findings reference the staking parameter validation issue in StakeManager (stakeConfig upgrade and stake checks). There is no mention of stakeConfig, upgradeStakeVersion, or validation of takeAmount, minWithdrawAmount, epochIssuance, or epochDuration in the stake() function.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -72,7 +72,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings correctly identify the logical error in _ejectFromCommittees where the committee size check subtracts one unconditionally, leading to an incorrect post\u2010ejection size when the validator is not in the committee.",
+    "explanation": "No junior auditor finding correctly identifies the logical error in _ejectFromCommittees where the committee size check assumes the validator is always a member. The closest finding at index 4 describes allowing zero-member committees, which is a different issue.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -82,7 +82,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor\u2019s findings reference the upgradeStakeVersion() function or the missing validation of its parameters in the ConsensusRegistry contract.",
+    "explanation": "The junior auditor's report does not include any finding about the missing validation in upgradeStakeVersion() function in ConsensusRegistry contract.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -92,7 +92,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings mention the missing Transfer events in InterchainTEL's mint() and burn() functions or ERC20 compliance issues.",
+    "explanation": "None of the junior auditor findings address the missing Transfer events in InterchainTEL._mint() and _burn(), so the verified issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -102,7 +102,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor\u2019s findings describe the off-by-one error in numEligible calculation in consensusBurn() or its effect on _ejectFromCommittees(). The closest (index 4) addresses missing zero-size checks, not the incorrect eligible validator count.",
+    "explanation": "None of the junior auditor\u2019s findings identify the off-by-one error in calculating numEligible before ejecting a validator in _consensusBurn, which leads to incorrect committee size validation in _ejectFromCommittees. Finding index 4 discusses a missing lower bound check for zero-sized committees, not the eligible validator miscount issue.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -112,7 +112,7 @@
   {
     "is_match": true,
     "is_partial_match": false,
-    "explanation": "The junior auditor\u2019s finding at index 7 precisely describes the same logic bug in StakeManager._unstake: zeroing the balance before computing rewards causes the issuance call to treat rewards as zero, effectively making StakeManager pay out what should come from Issuance. This aligns fully with the verified issue.",
+    "explanation": "The finding at index 7 correctly identifies the issue in StakeManager.sol\u2019s _unstake function where the contract zeroes the validator\u2019s balance before computing rewards, resulting in zero rewards and misallocation\u2014matching the verified issue\u2019s core bug and consequences.",
     "severity_from_junior_auditor": "High",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": 7,
@@ -122,7 +122,7 @@
   {
     "is_match": true,
     "is_partial_match": false,
-    "explanation": "Finding index 4 accurately identifies the missing zero committee size check in _checkCommitteeSize within ConsensusRegistry.sol, describes the core issue (allowing zero-member committees) and the consequence (consensus halt/DoS).",
+    "explanation": "The junior auditor\u2019s finding at index 4 correctly identifies the ConsensusRegistry contract and the _checkCommitteeSize function, accurately describes the missing zero-size check allowing empty committees, and outlines the potential DoS/consensus halt consequence, matching the verified issue.",
     "severity_from_junior_auditor": "Medium",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": 4,
@@ -132,7 +132,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings address the lack of explicit verification for genesis validator stake allocation in ConsensusRegistry. The closest findings in ConsensusRegistry relate to committee-size checks and token ID truncation, which are unrelated to genesis stake allocation.",
+    "explanation": "The junior auditor\u2019s report does not include any finding regarding the missing explicit verification of genesis validator stake allocation in the ConsensusRegistry constructor. None of the findings address assigning stake without capturing or verifying corresponding funds.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -142,7 +142,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings identify the missing event emission in the applySlashes() function of ConsensusRegistry. They do not mention missing events or applySlashes, so the verified issue is not captured.",
+    "explanation": "None of the junior auditor's findings identify the missing event emission for validator slashing in ConsensusRegistry.applySlashes().",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -152,7 +152,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings identify the incorrect balance check in Issuance.distributeStakeReward(), which fails to account for msg.value when checking balance. They reported issues like unbounded external calls and zero-address validation, but not the balance-check flaw.",
+    "explanation": "None of the junior auditor's findings describe the incorrect balance check in Issuance.distributeStakeReward() that fails to account for msg.value when verifying contract balance, so no match is found.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -162,7 +162,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings describe the misuse of block.number in updateEpochInfo during concludeEpoch to set the epoch start. They did not identify this issue.",
+    "explanation": "None of the junior auditor's findings address the updateEpochInfo function or the incorrect block.number being used at the end of an epoch, so the verified issue is not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -172,7 +172,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings identify the incorrect iTEL mint amount issue in InterchainTEL.sol\u2019s doubleWrap function when baseERC20 charges fees. The closest finding concerns permitWrap msg.value handling, which is unrelated.",
+    "explanation": "None of the junior auditor's findings address the InterchainTEL.sol contract's doubleWrap function or the incorrect iTEL mint amount when the underlying baseERC20 charges fees. Therefore, the verified issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -182,7 +182,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings identify the verified issue regarding the NewEpoch event mixing information about different epochs. No finding mentions the erroneous event emission or its consequences in concludeEpoch.",
+    "explanation": "None of the junior auditor's findings identify the NewEpoch event emission issue or the mixing of epoch data described in the verified issue.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -192,7 +192,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior auditor finding addresses the pauser role or pausing functionality; the recommended separation of the pauser role was not identified.",
+    "explanation": "None of the junior auditor's findings reference pausing functionality, the owner-only pauser role, or suggest separation of the pauser role. The verified issue about separating the pauser role is not identified in any finding.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -202,7 +202,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings identify the ineffective replay protection in delegateStake() of ConsensusRegistry; no finding mentions nonce handling or replay protection.",
+    "explanation": "None of the junior auditor\u2019s findings reference the delegateStake function, nonce handling, or replay protection in ConsensusRegistry. The verified issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -212,7 +212,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor\u2019s findings address the delegation risk and reward asymmetry in ConsensusRegistry; they focus on unrelated code-level vulnerabilities and do not mention the imbalance between validators and delegators.",
+    "explanation": "None of the junior auditor's findings address the delegation risk and reward asymmetry in the ConsensusRegistry delegation model; they focus on other issues (committee size, token ID truncation) and do not describe the economic imbalance between validators and delegators.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -222,7 +222,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The junior auditor did not report the lack of duplicate validator address validation in concludeEpoch; their related finding addresses zero-member committees, not duplicate entries.",
+    "explanation": "None of the junior auditor findings mention the lack of duplicate validator validation in the concludeEpoch function of ConsensusRegistry.sol. The closest finding (#4) addresses zero-member committees, which is a distinct issue from unvalidated duplicate entries.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,

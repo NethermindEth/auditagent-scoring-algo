@@ -2,7 +2,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings identify the misconfigured quorum in the TokenGovernor.sol constructor (GovernorVotesQuorumFraction(4) instead of 25%), so the verified issue is not found.",
+    "explanation": "None of the junior auditor's findings reference the TokenGovernor contract, the GovernorVotesQuorumFraction(4) mistake, or the low quorum threshold issue.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "High",
     "index_of_finding_from_junior_auditor": -1,
@@ -12,7 +12,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings identify the issue where an arbitrary user can deploy a new FraxSwapPair with a low fee (0.01%) prior to moveLiquidity, leading to protocol fee losses. They instead cover bytecode injection, ERC20 safety, division-by-zero DoS, fee-on-transfer tokens, slippage, and other topics.",
+    "explanation": "None of the junior auditor's findings address the issue of arbitrary users deploying a FraxSwapPair with a low fee in LiquidityManager::moveLiquidity, leading to fee losses for the protocol.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": -1,
@@ -22,7 +22,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings describe the DOS vulnerability in LiquidityManager.moveLiquidity caused by attacker token injection inflating liquidityAmount and causing an ERC20InsufficientBalance revert. Finding 3 describes a different DOS (division by zero) and none mention the core issue.",
+    "explanation": "None of the junior auditor's findings describe the DoS in moveLiquidity caused by malicious injection of currency tokens into LiquidityManager and the resulting ERC20InsufficientBalance revert. The only finding touching LiquidityManager.sol (index 3) describes a division-by-zero DoS from zero reserves, which is a different issue.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": -1,
@@ -32,7 +32,7 @@
   {
     "is_match": true,
     "is_partial_match": false,
-    "explanation": "The junior auditor\u2019s finding at index 0 correctly identifies the TokenGovernor.sol contract and the setProposalThresholdPercentage function and accurately describes that the function checks the existing stored value instead of the new input, allowing arbitrary high thresholds and leading to a governance DoS. It also outlines the potential impact of bricking governance. This aligns fully with the verified issue.",
+    "explanation": "The junior auditor\u2019s finding at index 0 precisely identifies the TokenGovernor.sol contract and the setProposalThresholdPercentage function, describes the incorrect validation comparing the stored value instead of the input, and details the governance DoS impact of setting an arbitrarily high threshold.",
     "severity_from_junior_auditor": "High",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": 10,
@@ -42,7 +42,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor findings identify the missing tokenId existence check in the Agent.setTokenURI function.",
+    "explanation": "The junior auditor\u2019s report contains no finding related to the Agent.setTokenURI() function or the missing existence check for tokenId, so the verified issue is not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -52,7 +52,7 @@
   {
     "is_match": true,
     "is_partial_match": false,
-    "explanation": "The junior auditor\u2019s finding at index 8 correctly identifies the missing slippage protection in the BootstrapPool contract\u2019s buy() and sell() functions, describes the absence of minOut/maxIn parameters, and outlines the risk of front-running/sandwich attacks, matching the verified issue.",
+    "explanation": "The junior auditor's finding at index 8 correctly identifies the lack of slippage protection in the buy() and sell() functions of BootstrapPool.sol, accurately describing the core issue and its front-running/sandwich attack consequences.",
     "severity_from_junior_auditor": "Medium",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": 8,
@@ -62,7 +62,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor\u2019s findings identify the issue in AgentRouter where its currencyToken is only set once in the constructor and never updated when AgentFactory.setCurrencyToken() is called, causing broken swap functionality.",
+    "explanation": "None of the junior auditor\u2019s findings describe the AgentRouter\u2019s improper handling of a changed currencyToken in AgentFactory. There is no mention of AgentRouter constructor initialization or stale token reference after setCurrencyToken is called.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -72,7 +72,7 @@
   {
     "is_match": true,
     "is_partial_match": false,
-    "explanation": "The finding correctly identifies setProposalThresholdPercentage in TokenGovernor.sol, explains that the cap check uses the state variable instead of the parameter, and describes how this allows setting an excessive threshold that permanently bricks governance proposals.",
+    "explanation": "The junior auditor correctly identifies the incorrect cap check in setProposalThresholdPercentage (using the stored variable instead of the parameter), describes how it allows setting values above 10%, and explains that this bricks future threshold updates causing a permanent governance DoS, matching the verified issue.",
     "severity_from_junior_auditor": "High",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": 12,
@@ -82,7 +82,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The junior auditor\u2019s report does not include any finding that identifies the owner\u2019s ability to brick moveLiquidity by advancing the agent stage before liquidity movement. None of the findings reference the setAgentStage/setStage check or the owner misordering that causes moveLiquidity to always revert.",
+    "explanation": "None of the junior auditor\u2019s findings mention the owner\u2019s ability to prematurely increment agent stage, causing moveLiquidity() to always revert and brick the bootstrap phase. They all address unrelated issues.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,

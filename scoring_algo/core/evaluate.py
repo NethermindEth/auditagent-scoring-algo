@@ -5,9 +5,10 @@ from pathlib import Path
 from typing import List, Optional
 
 from langfuse import observe
+from rich import print
 from rich.progress import BarColumn, Progress, TimeElapsedColumn, TimeRemainingColumn
 
-from .batching import process_in_batches_async
+from .batching import process_in_batches
 from .storage import (
     get_evaluation_path,
     read_scan_results,
@@ -62,7 +63,7 @@ def run_evaluation(
         async def _process_all():
             out: list[tuple[int, Optional[EvaluatedFinding], Optional[Finding]]] = []
             for idx, finding in enumerate(truth):
-                content = await process_in_batches_async(
+                content = await process_in_batches(
                     all_findings=working_results,
                     repo_name=repo_name,
                     truth_finding=finding,

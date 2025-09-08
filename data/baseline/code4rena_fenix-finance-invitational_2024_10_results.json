@@ -1,0 +1,62 @@
+{
+  "project": "code4rena_fenix-finance-invitational_2024_10",
+  "timestamp": "2025-09-02T00:18:26.326600",
+  "files_analyzed": 3,
+  "files_skipped": 0,
+  "total_findings": 4,
+  "findings": [
+    {
+      "title": "Unlimited ERC20 allowance to each gauge enables potential token drain",
+      "description": "When a gauge is registered, the contract grants it an unlimited allowance of the protocol token. Any gauge with this allowance can call transferFrom on the token and pull arbitrary amounts from VoterUpgradeableV2's balance at any time, independent of the contract's accounting (e.g., claimable amounts). This occurs in _registerCreatedGauge() where IERC20Upgradeable(token).approve(gauge_, type(uint256).max) is called. Because the gauge addresses are external contracts, if a gauge is malicious, compromised, upgraded to malicious logic, or incorrectly specified via createCustomGauge, it can drain all tokens held by this contract. The isAlive flag does not protect against this because it is only checked when the contract proactively calls the gauge; it does not restrict the gauge from using its allowance.",
+      "vulnerability_type": "unbounded approval / improper token allowance",
+      "severity": "high",
+      "confidence": 0.9,
+      "location": "_registerCreatedGauge() function (approval to gauge), and all flows that rely on notifyRewardAmount/claimable accounting",
+      "file": "VoterUpgradeableV2.sol",
+      "id": "dae59ee7e8c7e758",
+      "reported_by_model": "gpt-5",
+      "status": "proposed"
+    },
+    {
+      "title": "Global rewards distribution can be blocked by a single reverting gauge (DoS)",
+      "description": "distributeAll() iterates over all pools and calls _distribute() for each. Inside _distribute(), after updating state, the function calls IGauge(gauge_).notifyRewardAmount(token, claimable). If any gauge reverts in notifyRewardAmount, the entire distributeAll() call reverts and no further gauges are processed. This allows a single faulty or malicious gauge to cause a denial of service for global distribution. While users can call distribute(address[] gauges) to bypass the broken gauge, distributeAll remains unusable and can disrupt expected operational flows (including being coupled with IMinter(minter).update_period()).",
+      "vulnerability_type": "denial of service",
+      "severity": "medium",
+      "confidence": 0.7,
+      "location": "distributeAll() and _distribute() (external call to IGauge.notifyRewardAmount)",
+      "file": "VoterUpgradeableV2.sol",
+      "id": "e34b7f2a11809f44",
+      "reported_by_model": "gpt-5",
+      "status": "proposed"
+    },
+    {
+      "title": "notifyRewardAmount assumes non-deflationary ERC20 transfers, causing accounting mismatch/DoS with fee-on-transfer tokens",
+      "description": "notifyRewardAmount() pulls amount_ tokens via safeTransferFrom and then increases the global index based on the provided amount_. If the protocol token charges transfer fees or is otherwise deflationary, the actual tokens received will be less than amount_, but index is still increased by amount_. This can cause over-accounting of rewards, leading to subsequent distributions attempting to pull more tokens to gauges than are actually available, which can cause reverts and create a denial of service for reward distribution.",
+      "vulnerability_type": "token compatibility / accounting mismatch",
+      "severity": "low",
+      "confidence": 0.6,
+      "location": "notifyRewardAmount(uint256 amount_)",
+      "file": "VoterUpgradeableV2.sol",
+      "id": "e3deef8b88dfe896",
+      "reported_by_model": "gpt-5",
+      "status": "proposed"
+    },
+    {
+      "title": "Managed NFT detachment can mint arbitrary locked balance (funds theft via accounting inconsistency)",
+      "description": "The onDettachFromManagedNFT function allows the managed NFT manager to set an arbitrary newBalance_ for the user being detached without enforcing conservation of the managed NFT's locked amount. Specifically, the function sets the user's LockedBalance.amount to newBalance_ but only reduces the managed NFT's amount by min(newBalance_, managed.amount). If newBalance_ exceeds the managed NFT's recorded amount, the user's locked amount is effectively increased out of thin air. Later, the user can withdraw this inflated amount via withdraw(), which transfers ERC20 tokens from the contract balance, potentially draining funds deposited by other users.\n\nWhere:\n- Function: onDettachFromManagedNFT(uint256 tokenId_, uint256 managedTokenId_, uint256 newBalance_)\n- Code snippets of concern:\n  - Sets user's locked amount directly: _updateNftLocked(tokenId_, LockedBalance(amount, maxUnlockTimestamp, false)) where amount = int128(newBalance_)\n  - Reduces managed amount by min(amount, managed.amount): newManagedLocked.amount -= amount < newManagedLocked.amount ? amount : newManagedLocked.amount\n  - No check that newBalance_ <= managed NFT's locked amount\n\nWhy it's a security issue:\n- The total ERC20 tokens held by the contract are conserved, but the internal accounting for a user's LockedBalance can be arbitrarily increased by the managedNFTManager. Since withdraw() transfers ERC20 tokens equal to the user's LockedBalance.amount, a malicious or compromised manager can inflate a user's locked amount and then have the user withdraw, stealing tokens from the contract (i.e., from other users\u2019 deposits).\n\nPotential impact:\n- Loss of funds from the contract as users withdraw more tokens than were actually moved from the managed NFT, enabling theft and draining of the escrowed ERC20 token pool.\n\nNotes:\n- This is not mitigated by the supply variable, as onAttach/onDettach update LockedBalance via _updateNftLocked without adjusting the supply variable or transferring tokens. Thus, accounting becomes inconsistent and enables draining via withdraw().\n\nRecommended fix:\n- Enforce strict conservation in onDettachFromManagedNFT by requiring newBalance_ <= nftStates[managedTokenId_].locked.amount and reverting otherwise.\n- Alternatively, compute the detachable amount from managedLocked and ignore the provided newBalance_, or adjust both sides symmetrically and update any global supply/accounting consistently.",
+      "vulnerability_type": "access control / accounting manipulation",
+      "severity": "critical",
+      "confidence": 0.95,
+      "location": "onDettachFromManagedNFT(uint256 tokenId_, uint256 managedTokenId_, uint256 newBalance_)",
+      "file": "VotingEscrowUpgradeableV2.sol",
+      "id": "8b0b1b604c66bca6",
+      "reported_by_model": "gpt-5",
+      "status": "proposed"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 178602,
+    "output_tokens": 138783,
+    "total_tokens": 317385
+  }
+}

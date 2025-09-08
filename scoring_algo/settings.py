@@ -6,16 +6,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     REPOS_TO_RUN: list[str] = [
-        "cantina_minimal-delegation_2025_04",
-        "cantina_smart-contract-audit-of-tn-contracts_2025_08",
-        "code4rena_cabal-liquid-staking-token_2025_05",
-        "code4rena_coded-estate-invitational_2024_12",
-        "code4rena_initia-move_2025_04",
-        "code4rena_iq-ai_2025_03",
-        "code4rena_kinetiq_2025_07",
-        "code4rena_lambowin_2025_02",
-        "code4rena_liquid-ron_2025_03",
-        "code4rena_pump-science_2025_02",
+        # "cantina_minimal-delegation_2025_04",
+        # "cantina_smart-contract-audit-of-tn-contracts_2025_08",
+        "code4rena_fenix-finance-invitational_2024_10",
+        # "code4rena_iq-ai_2025_03",
+        # "code4rena_kinetiq_2025_07",
+        # "code4rena_lambowin_2025_02",
+        # "code4rena_liquid-ron_2025_03",
+        # "code4rena_secondswap_2025_02",
     ]
     MODEL: str = "o4-mini"
     ITERATIONS: int = 3

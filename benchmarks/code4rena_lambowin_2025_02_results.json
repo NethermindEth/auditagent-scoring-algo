@@ -2,7 +2,7 @@
   {
     "is_match": true,
     "is_partial_match": false,
-    "explanation": "The junior auditor\u2019s finding #9 correctly identifies the VirtualToken contract\u2019s cashIn function, describes the root cause (using msg.value instead of amount in minting), and accurately details the user fund loss and reserve-draining consequences.",
+    "explanation": "The junior auditor\u2019s finding at index 9 precisely identifies the VirtualToken contract and its cashIn() function, describes the incorrect use of msg.value instead of the amount parameter for minting (causing ERC20 depositors to receive zero tokens and enabling reserve draining), and details the resulting loss of user funds and stranded ETH consequences.",
     "severity_from_junior_auditor": "High",
     "severity_from_truth": "High",
     "index_of_finding_from_junior_auditor": 9,
@@ -12,7 +12,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor\u2019s findings reference LamboFactory.createLaunchPad, UniswapV2Factory.createPair, or the ability to precompute and frontrun createPair to cause a permanent DoS. Therefore, the verified issue was not identified.",
+    "explanation": "None of the junior auditor's findings reference the LamboFactory contract, its createLaunchPad function, or the UniswapV2Factory.createPair front-run DoS issue. Therefore, the verified issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "High",
     "index_of_finding_from_junior_auditor": -1,
@@ -22,7 +22,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No finding in the junior auditor's report addresses the incorrect calculation of directionMask in _getQuoteAndDirection in LamboRebalanceOnUniwap.sol.",
+    "explanation": "None of the junior auditor\u2019s findings address the incorrect directionMask calculation in _getQuoteAndDirection of LamboRebalanceOnUniwap.sol; they all concern different contracts and issues.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "High",
     "index_of_finding_from_junior_auditor": -1,
@@ -32,7 +32,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings mention the rebalancing function in LamboRebalanceOnUniwap.sol or its missing parameter validation, so the verified issue is not identified.",
+    "explanation": "None of the junior auditor's findings reference the LamboRebalanceOnUniwap.sol rebalance() function or describe missing parameter validation allowing arbitrary calls, so the verified issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "High",
     "index_of_finding_from_junior_auditor": -1,
@@ -42,7 +42,7 @@
   {
     "is_match": false,
     "is_partial_match": true,
-    "explanation": "The junior auditor correctly identifies the LamboFactory.createLaunchPad function and the unauthenticated takeLoan call on VirtualToken, and describes a DoS-style impact by depleting/locking liquidity. However, they mischaracterize the core consequence as permanent LP burning and asset lock instead of the per-block loan limit exhaustion DoS described in the verified issue.",
+    "explanation": "The junior auditor correctly pinpointed that createLaunchPad() in LamboFactory.sol calls VirtualToken.takeLoan without proper access control, allowing an attacker to deplete virtual token liquidity and cause denial of service. However, their finding centers on permanent LP token burns and draining reserves, whereas the verified issue specifically concerns exhausting the per-block MAX_LOAN_PER_BLOCK limit via minimal-cost pool launches. They omitted the core attack vector of block-by-block loan limit exhaustion.",
     "severity_from_junior_auditor": "High",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": -1,
@@ -52,7 +52,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The junior auditor's findings do not include any issue related to LamboRebalanceOnUniswap or its _getTokenInOut formula. None of the reported issues reference the contract, function, or incorrect constant-sum assumption described in the verified vulnerability.",
+    "explanation": "The junior auditor report does not include any finding related to LamboRebalanceOnUniswap or the incorrect rebalance formula for a UniV3 pool; no mention of _getTokenInOut or related constant sum vs. constant product issues.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": -1,
@@ -62,7 +62,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings identify the missing deadline check in sellQuote and buyQuote within LamboVEthRouter or describe the resulting mempool delay and sandwich attack vulnerability.",
+    "explanation": "The junior auditor\u2019s report does not include any finding about a missing deadline parameter in the buyQuote or sellQuote functions of LamboVEthRouter, so the verified issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": -1,
@@ -72,7 +72,7 @@
   {
     "is_match": true,
     "is_partial_match": false,
-    "explanation": "The finding at index 8 accurately identifies that LamboVEthRouter._buyQuote withholds 1 wei on refunds and lacks any withdrawal mechanism, leading to irretrievable ETH dust accumulation, which matches the verified issue.",
+    "explanation": "The junior auditor\u2019s finding at index 8 accurately identifies the LamboVEthRouter contract and the _buyQuote function, describing the 1 wei dust retention on refunds and the irretrievable accumulation of ETH over time, matching the verified issue\u2019s core problem and impact.",
     "severity_from_junior_auditor": "Low",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": 8,
@@ -82,7 +82,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings reference the _getQuoteAndDirection function, incorrect struct field usage, or hardcoded sqrtPriceLimitX96 described in the verified issue.",
+    "explanation": "No junior auditor finding mentions the _getQuoteAndDirection function, the incorrect struct field usage for amountIn/amount, or the hardcoded sqrtPriceLimitX96 in the Uniswap Quoter parameters. Therefore, none of the findings correspond to the verified issue.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": -1,
@@ -92,7 +92,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings identify the vulnerability in LamboRebalanceOnUniwap::rebalance involving the directionMask OR injection attack that allows a malicious pool to capture VETH-WETH depeg profits.",
+    "explanation": "None of the junior auditor's findings reference LamboRebalanceOnUniwap.rebalance, directionMask misuse, or the malicious pool attack. Therefore, they did not identify the verified issue.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": -1,
@@ -102,7 +102,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings reference the RebalanceOnUniswap contract or the require(profit > 0) check in the rebalance function, so the verified issue is not covered.",
+    "explanation": "None of the junior auditor's findings reference the LamboRebalanceOnUniwap.sol contract or the rebalance function and fail to describe the require(profit > 0) issue preventing peg maintenance.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": -1,
@@ -112,7 +112,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings mention the rebalance function in LamboRebalanceOnUniwap.sol or describe the frontrunning DoS issue preventing rebalancing.",
+    "explanation": "None of the junior auditor's findings mention the LamboRebalanceOnUniwap contract or the rebalance function or describe a front-running DoS causing profit<=0 and preventing rebalancing. Therefore the verified issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": -1,
@@ -122,7 +122,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings relate to the rebalance commission rate DDoS issue in LamboRebalanceOnUniwap.sol; they all address entirely different contracts and issues.",
+    "explanation": "None of the junior auditor's findings reference the rebalance function, OKXRouter commissions, or the DoS risk due to commission rates in LamboRebalanceOnUniswap.sol, so the verified issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": -1,
@@ -132,7 +132,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings address the hardcoded 18 decimals in VirtualToken.sol that causes incorrect NFT metadata for v3 pool tokens with non-18 decimals. No finding matches or even partially matches this issue.",
+    "explanation": "The junior auditor's report does not include any finding related to the hardcoded 18 decimals in VirtualToken.sol and the resulting incorrect NFT metadata for Uniswap v3 pool positions. Therefore, the verified issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": -1,

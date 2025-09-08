@@ -2,7 +2,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor\u2019s findings describe the front-running issue in MinimalDelegation.execute: missing executor identity in the signed digest allowing anyone to front-run and break batched calls. The closest (index 1) addresses nonce misuse, not the core front-running vulnerability.",
+    "explanation": "None of the junior auditor's findings correctly identify the front-running vulnerability in execute(SignedBatchedCall) of the MinimalDelegation contract. The closest finding (#1) describes a nonce misuse DoS issue rather than the missing executor address in the signed digest that enables front-running.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "High",
     "index_of_finding_from_junior_auditor": -1,
@@ -12,7 +12,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings describe the out-of-gas sabotage in execute(SignedBatchedCall) due to EIP-150 gas forwarding and the shouldRevert flag. The closest finding relates to nonce consumption, not gas exhaustion.",
+    "explanation": "No junior auditor finding identifies the execute call out-of-gas sabotage issue in execute(SignedBatchedCall, bytes), which relies on EIP-150 gas forwarding and shouldRevert=false behavior.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "High",
     "index_of_finding_from_junior_auditor": -1,
@@ -22,7 +22,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor\u2019s findings describe the separate persistent vs ephemeral allowance tracking in the MinimalDelegation wallet that allows those allowances to stack, leading to double-counting. They instead identify owner-scope or storage-collision issues unrelated to the verified double-counting risk.",
+    "explanation": "None of the junior auditor's findings describe the double-counting of ephemeral and persistent allowances in TheMinimalDelegationWallet, so the verified issue is not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -32,7 +32,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings reference the off-by-one error in isExpired(), the mismatch between expiration == block.timestamp handling, or the related validUntil logic. The verified issue is missing entirely.",
+    "explanation": "None of the junior auditor's findings mention the off-by-one error in isExpired() or describe the expiration validity check mismatch; thus no matching or partial match exists.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -42,7 +42,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings address the privilege escalation in NonceManager's invalidateNonce mechanism or the shared nonce mapping that allows non-admin keyHashes to invalidate other keyHashes' nonces.",
+    "explanation": "None of the junior auditor findings reference the NonceManager contract or describe the privilege escalation issue where non-admin keyHashes can sign a nonceKey to invalidate other nonces. The junior report does not identify this verified issue.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -52,7 +52,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings mention the _checkExpiry revert issue in validateUserOp or the incorrect handling of expired signatures as per EIP-4337; they focus on unrelated issues.",
+    "explanation": "None of the junior auditor's findings mention the expiry check in validateUserOp or the _checkExpiry function reverting on expired signatures. They do not identify the core issue or its consequences.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -62,7 +62,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor\u2019s findings mention ModeDecoder or MinimalDelegation\u2019s execute(bytes32 mode, bytes) or supportsExecutionMode functions or address EIP-7821 compliance; the verified issue is not covered.",
+    "explanation": "None of the junior auditor's findings address the ModeDecoder or MinimalDelegation execute/supportsExecutionMode functions or the incomplete subset implementation of EIP-7821 described in the verified issue.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -72,7 +72,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings mention the incorrect comment in SettingsLib; they identify a functional masking vulnerability, not the comment inconsistency.",
+    "explanation": "None of the junior auditor findings mention the incorrect comment in SettingsLib regarding the 200-bit shift vs the stated 8-bit approach. The verified issue about a misleading comment was not reported.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -82,7 +82,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings reference the omission of hookData from the EIP-712 signature digest in MinimalDelegation or describe its impact. The verified issue about arbitrary hookData supply is not covered.",
+    "explanation": "No junior finding identifies the omission of hookData from the EIP-712 signature digest in MinimalDelegation, nor the resulting ability for an attacker to supply arbitrary hookData.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -92,7 +92,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior auditor finding addresses the MinimalDelegation smart wallet compatibility with EntryPoint v0.6.0 vs v0.7.0+/executeUserOp support issue.",
+    "explanation": "None of the junior auditor\u2019s findings discuss the compatibility of MinimalDelegation with EntryPoint versions or the lack of executeUserOp support in v0.6.0. They all cover unrelated issues.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -102,7 +102,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The junior auditor\u2019s report contains no finding addressing the EntryPoint version v0.6.0 incompatibility or lack of executeUserOp support. None of the findings mention EntryPoint versions or the compatibility issue described in the verified issue.",
+    "explanation": "The junior auditor\u2019s report contains no finding related to EntryPoint version incompatibility or the inability to support executeUserOp in v0.6.0. All findings address other security issues, so the verified version issue is not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -112,7 +112,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings address the EntryPoint version compatibility issue (v0.7.0/v0.8.0 support vs. v0.6.0), so the verified issue was not identified.",
+    "explanation": "None of the junior auditor's findings address the EntryPoint version compatibility issue or mention executeUserOp support in v0.7.0.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -122,7 +122,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings mention EntryPoint version compatibility or the executeUserOp support introduced in v0.7.0, so the verified issue is not identified.",
+    "explanation": "None of the junior auditor's findings address the EntryPoint version compatibility issue (v0.6.0 vs. v0.7.0/v0.8.0 and executeUserOp support) identified in the verified issue.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -132,7 +132,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor\u2019s findings address SPDX license identifiers or the absence of a license; they all focus on technical issues unrelated to licensing.",
+    "explanation": "None of the junior auditor's findings identify the missing or unlicensed SPDX license identifier and thus do not address the use of unlicensed contracts.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -142,7 +142,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The junior auditor\u2019s report contains no finding related to ERC7914 or zero-amount transfer behavior; the verified issue about returning true on 0 transfers is not identified.",
+    "explanation": "The junior auditor's report does not include any finding related to ERC7914 or the behavior of zero-amount transfers returning false instead of true.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -152,7 +152,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor\u2019s findings reference the _execute() function or the stale hook handleAfterExecute() issue described in the verified security issue.",
+    "explanation": "None of the junior auditor\u2019s findings mention the _execute()/handleAfterExecute hook caching issue described in the verified report.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -162,7 +162,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings mention the validateUserOp function or the early return on invalid signature in MinimalDelegation.validateUserOp, so the verified issue was not identified.",
+    "explanation": "The junior auditor did not identify any issue related to MinimalDelegation.validateUserOp() early returning on invalid signature as specified; no finding mentions validateUserOp or the inconsistency with specs.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,

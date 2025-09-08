@@ -16,7 +16,7 @@ def build_batches(findings: List[WorkingResult], batch_size: int) -> List[List[W
     return [findings[i : i + batch_size] for i in range(0, len(findings), batch_size)]  # noqa: E203
 
 
-async def process_in_batches_async(
+async def process_in_batches(
     all_findings: List[WorkingResult],
     repo_name: str,
     truth_finding: Vulnerability,
@@ -44,71 +44,19 @@ async def process_in_batches_async(
             for i, b in enumerate(batch)
         ]
 
-        stringified_truth = truth_finding.model_dump_json(indent=2)
-        stringified_results = json.dumps(working_results, indent=2)
-
-        prompt = (
-            CALCULATE_PROMPT.replace("{truth_finding}", stringified_truth)
-            .replace("{junior_findings}", stringified_results)
-            .strip()
-        )
+        prompt = _build_prompt(truth_finding, working_results)
         if debug_prompt:
             store_debug_prompt(prompt, repo_name, output_root)
 
-        # run first two iterations concurrently, then conditionally run a third
-        async def _run_two() -> List[Finding]:
-            r1, r2 = await asyncio.gather(
-                client.generate_async(prompt), client.generate_async(prompt)
-            )
-            out: List[Finding] = []
-            if r1:
-                out.append(r1)
-            if r2:
-                out.append(r2)
-            return out
-
-        def _agree(a: Finding, b: Finding) -> bool:
-            if a.is_match and b.is_match:
-                return True
-            if a.is_partial_match and b.is_partial_match:
-                return True
-            if (
-                not a.is_match
-                and not a.is_partial_match
-                and not b.is_match
-                and not b.is_partial_match
-            ):
-                return True
-            return False
-
-        responses: List[Finding] = []
-        if iterations <= 1:
-            r = await client.generate_async(prompt)
-            if r:
-                responses.append(r)
-        elif iterations == 2:
-            responses = await _run_two()
-        else:
-            # iterations >= 3
-            first_two = await _run_two()
-            responses.extend(first_two)
-            need_third = True
-            if len(first_two) == 2 and _agree(first_two[0], first_two[1]):
-                need_third = False
-            if need_third:
-                r3 = await client.generate_async(prompt)
-                if r3:
-                    responses.append(r3)
+        responses: List[Finding] = await _generate_responses_for_prompt(
+            client=client, prompt=prompt, iterations=iterations
+        )
         if not responses:
             continue
 
         content = get_best_response(responses, len(responses))
 
-        if content.index_of_finding_from_junior_auditor != -1:
-            index_wrt_working = (
-                content.index_of_finding_from_junior_auditor + batch_number * batch_size
-            )
-            content.index_of_finding_from_junior_auditor = int(index_wrt_working)
+        _apply_index_offset(content, batch_number, batch_size)
 
         if current_best is None:
             current_best = content
@@ -121,26 +69,59 @@ async def process_in_batches_async(
     return current_best
 
 
-def process_in_batches(
-    all_findings: List[WorkingResult],
-    repo_name: str,
-    truth_finding: Vulnerability,
-    model: str,
-    iterations: int,
-    batch_size: int,
-    debug_prompt: bool,
-    output_root: Path,
-) -> Optional[Finding]:
-    # Backward-compatible sync wrapper; prefer reusing a single Runner in callers
-    return asyncio.run(
-        process_in_batches_async(
-            all_findings=all_findings,
-            repo_name=repo_name,
-            truth_finding=truth_finding,
-            model=model,
-            iterations=iterations,
-            batch_size=batch_size,
-            debug_prompt=debug_prompt,
-            output_root=output_root,
-        )
+def _agree(a: Finding, b: Finding) -> bool:
+    if a.is_match and b.is_match:
+        return True
+    if a.is_partial_match and b.is_partial_match:
+        return True
+    if not a.is_match and not a.is_partial_match and not b.is_match and not b.is_partial_match:
+        return True
+    return False
+
+
+async def _generate_responses_for_prompt(
+    client: LLMClient, prompt: str, iterations: int
+) -> List[Finding]:
+    async def _run_two() -> List[Finding]:
+        r1, r2 = await asyncio.gather(client.generate_async(prompt), client.generate_async(prompt))
+        out: List[Finding] = []
+        if r1:
+            out.append(r1)
+        if r2:
+            out.append(r2)
+        return out
+
+    responses: List[Finding] = []
+    if iterations <= 1:
+        r = await client.generate_async(prompt)
+        if r:
+            responses.append(r)
+    elif iterations == 2:
+        responses = await _run_two()
+    else:
+        first_two = await _run_two()
+        responses.extend(first_two)
+        need_third = True
+        if len(first_two) == 2 and _agree(first_two[0], first_two[1]):
+            need_third = False
+        if need_third:
+            r3 = await client.generate_async(prompt)
+            if r3:
+                responses.append(r3)
+    return responses
+
+
+def _apply_index_offset(content: Finding, batch_number: int, batch_size: int) -> None:
+    if content.index_of_finding_from_junior_auditor != -1:
+        index_wrt_working = content.index_of_finding_from_junior_auditor + batch_number * batch_size
+        content.index_of_finding_from_junior_auditor = int(index_wrt_working)
+
+
+def _build_prompt(truth_finding: Vulnerability, working_results: List[dict]) -> str:
+    stringified_truth = truth_finding.model_dump_json(indent=2)
+    stringified_results = json.dumps(working_results, indent=2)
+    return (
+        CALCULATE_PROMPT.replace("{truth_finding}", stringified_truth)
+        .replace("{junior_findings}", stringified_results)
+        .strip()
     )

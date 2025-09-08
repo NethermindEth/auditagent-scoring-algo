@@ -2,7 +2,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor\u2019s findings mention the buffer handling or the missing buffer restoration in cancelWithdrawal/redelegateWithdrawnHYPE within StakingManager.sol, so the verified issue was not identified.",
+    "explanation": "None of the junior auditor's findings reference the buffer handling in StakingManager or the cancelWithdrawal/redelegateWithdrawnHYPE flow that leads to silently locked HYPE. The verified issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "High",
     "index_of_finding_from_junior_auditor": -1,
@@ -12,7 +12,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings address the queued withdrawal slashing ordering issue in confirmWithdrawal, where early withdrawers lock in a favorable rate before a slash, disadvantaging later users.",
+    "explanation": "None of the junior auditor's findings describe the issue where users who queue withdrawals before a slashing event lock in an outdated exchange ratio and disadvantage subsequent withdrawal queues, leading to loss of funds.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "High",
     "index_of_finding_from_junior_auditor": -1,
@@ -22,7 +22,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor\u2019s findings mention the receive() function in StakingManager or the auto-staking of received HYPE that prevents withdrawal confirmation and inflates the exchange ratio. The core issue of mishandling HYPE in receive() is not identified.",
+    "explanation": "No junior auditor finding identifies the receive() function in StakingManager or the auto-stake of HYPE on native token receipt, nor the resulting inability to confirm withdrawals and exchange ratio inflation. The issue was not detected.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "High",
     "index_of_finding_from_junior_auditor": -1,
@@ -32,7 +32,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings mention the incorrect balance check in processValidatorRedelegation in the StakingManager contract, so the verified issue was not identified.",
+    "explanation": "None of the junior auditor's findings mention the incorrect balance check in processValidatorRedelegation in the StakingManager contract or the resulting blockage of legitimate rebalancing operations on HyperCore. The verified issue is not covered.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": -1,
@@ -42,7 +42,7 @@
   {
     "is_match": true,
     "is_partial_match": false,
-    "explanation": "The junior auditor's finding at index 9 precisely identifies the missing whenWithdrawalNotPaused modifier in StakingManager.sol's confirmWithdrawal (and batchConfirmWithdrawals) functions, accurately describing the bypass of the withdrawal pause and its consequences, matching the verified issue.",
+    "explanation": "The junior auditor\u2019s finding at index 9 correctly identifies that confirmWithdrawal (and batchConfirmWithdrawals) in StakingManager.sol lack the whenWithdrawalNotPaused modifier, allowing users to bypass withdrawal pauses\u2014exactly matching the verified issue.",
     "severity_from_junior_auditor": "Medium",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": 9,
@@ -52,7 +52,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings mentions the cancelWithdrawal function or the failure to restore hypeBuffer and pendingWithdrawals, so the verified issue was not identified.",
+    "explanation": "No junior auditor finding describes the cancelWithdrawal function in StakingManager.sol failing to restore hypeBuffer and remove pending operations, so none match the verified issue.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": -1,
@@ -62,7 +62,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings identify the processing order issue in StakingManager.sol's processL1Operations (withdrawals before deposits) leading to deposits not being delegated and reduced rewards.",
+    "explanation": "None of the junior auditor's findings address the incorrect processing order in processL1Operations within StakingManager.sol that causes deposits to not be delegated after withdrawals. No finding mentions processL1Operations or the missing delegation issue.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": -1,
@@ -72,7 +72,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor findings identify the DoS issue in StakingManager where an attacker can spam the L1 deposit queue and cause processL1Operations or resetL1OperationsQueue to exceed gas limits and revert. The closest related findings address different issues (e.g., missing validator checks or pause bypass), but none describe the unbounded pending deposit queue deletion leading to OOG.",
+    "explanation": "None of the junior auditor findings describe the Denial of Service in StakingManager\u2019s processL1Operations due to deletion of a large _pendingDeposits array causing out-of-gas. No finding mentions array deletion or batching inability, so the issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Medium",
     "index_of_finding_from_junior_auditor": -1,
@@ -82,7 +82,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings identify the missing whenNotPaused modifier on the mint function in KHYPE.sol. The report does not mention the mint function bypassing pause controls, so the verified issue was not found.",
+    "explanation": "None of the junior auditor's findings identifies the missing whenNotPaused modifier in the mint function of KHYPE.sol. The core pause bypass issue is not described.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -92,7 +92,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The junior auditor report contains no finding related to OracleManager.sol or the generatePerformance function and does not describe the silent skipping of inactive oracles issue.",
+    "explanation": "The junior auditor's report contains no finding related to OracleManager.sol or the generatePerformance function skipping inactive oracles without emitting an event.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -102,7 +102,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor\u2019s findings refer to OracleManager.sol, function generatePerformance, or the unbounded iteration over authorizedOracles. The specific unbounded oracle iteration issue was not identified.",
+    "explanation": "None of the junior auditor's findings reference OracleManager.sol or the generatePerformance function or describe unbounded iteration over authorizedOracles. Therefore, the verified issue is not identified in their report.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -112,7 +112,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings reference OracleManager.sol, the generatePerformance function, or describe handling of zero timestamps.",
+    "explanation": "None of the junior auditor's findings reference OracleManager.sol, the generatePerformance function, or the issue of zero timestamps; therefore the verified issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -122,7 +122,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings identifies the issue in OracleManager.sol generatePerformance using average instead of median.",
+    "explanation": "None of the junior auditor's findings reference OracleManager.sol or the generatePerformance function, nor do they discuss averaging vs median aggregation. The verified issue is not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -132,7 +132,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor\u2019s findings mention OracleManager.sol or the generatePerformance function and none describe the missing event emission for equal avgRewardAmount or avgSlashAmount values.",
+    "explanation": "None of the junior auditor's findings reference OracleManager.sol or the generatePerformance function, nor the incomplete event emission logic, so the verified issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -142,7 +142,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings mention PauserRegistery.sol or the inconsistent error message in unpauseContract. They do not address this verified issue.",
+    "explanation": "None of the junior auditor's findings reference PauserRegistery.sol, unpauseContract, or inconsistent error messages; the verified issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -151,18 +151,18 @@
   },
   {
     "is_match": false,
-    "is_partial_match": true,
-    "explanation": "The junior auditor\u2019s finding at index 5 correctly pinpoints the PauserRegistry.sol emergencyPauseAll function and notes its O(n) loop leads to high gas costs that can revert under block limits. The verified issue specifically calls out inefficient event emission in that loop, whereas the junior auditor focuses on a DoS consequence of the loop. They match on the gas-inefficiency root cause but differ in described impact and mitigation, making this a partial match.",
-    "severity_from_junior_auditor": "Medium",
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings reference PauserRegistery.sol or the emergencyPauseAll function\u2019s event emission inefficiency. The issue is not identified in the report.",
+    "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
-    "index_of_finding_from_junior_auditor": 16,
+    "index_of_finding_from_junior_auditor": -1,
     "is_fp": false,
-    "finding_description_from_junior_auditor": "The contract follows the upgradeable pattern and provides a public initialize() function guarded by the initializer modifier. While the implementation contract's constructor disables initializers, if a proxy pointing to this logic is deployed without atomically calling initialize in the same transaction, any external account can call initialize first and grant themselves DEFAULT_ADMIN_ROLE, PAUSER_ROLE, UNPAUSER_ROLE, and PAUSE_ALL_ROLE by supplying their own addresses as parameters. This results in unauthorized control over the registry: the attacker could authorize arbitrary contracts, pause/unpause targets, or permanently disrupt operations. Potential impact: complete takeover of access control leading to unauthorized actions and denial of service."
+    "finding_description_from_junior_auditor": "NOT FOUND"
   },
   {
     "is_match": true,
     "is_partial_match": false,
-    "explanation": "The junior auditor\u2019s finding at index 3 correctly identifies DefaultOracle.sol and highlights the absence of any mechanism to remove validators (stale or otherwise). This aligns with the verified issue of Missing Method to Remove Stale Validators. The junior auditor also explains the consequence (unbounded growth causing DoS), demonstrating a full understanding of the issue and its impact.",
+    "explanation": "The finding at index 3 correctly identifies DefaultOracle.sol and notes the absence of any mechanism to remove validators, matching the verified issue of missing stale validator removal. It accurately describes the core problem\u2014no removal method\u2014and the potential consequence of an ever-growing set causing denial of service via getValidators().",
     "severity_from_junior_auditor": "Medium",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": 14,
@@ -172,7 +172,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The junior auditor's report does not include any finding regarding DefaultOracle.sol or the updateValidatorMetrics function lacking sanity checks for reward and slashing amounts.",
+    "explanation": "None of the junior auditor's findings reference DefaultOracle.sol or the updateValidatorMetrics function or describe missing sanity checks for reward and slashing amounts relative to balance.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -182,7 +182,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings reference DefaultAdapter.sol or the immutable defaultOracle variable and its single point of failure issue.",
+    "explanation": "None of the junior auditor's findings refer to DefaultAdapter.sol or the immutable defaultOracle issue, so the verified issue is not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -192,7 +192,7 @@
   {
     "is_match": true,
     "is_partial_match": false,
-    "explanation": "The junior auditor correctly identifies DefaultAdapter.sol and the supportsInterface(bytes4) function, accurately describes the non-compliance with ERC-165 (missing support for 0x01ffc9a7), and explains the compatibility/denial-of-service consequences.",
+    "explanation": "The finding correctly identifies DefaultAdapter.sol and the supportsInterface function failing to return true for the ERC-165 interface ID (0x01ffc9a7), describes the non-compliance and its denial-of-service impact, matching the verified issue.",
     "severity_from_junior_auditor": "Low",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -202,7 +202,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor findings identify the missing slippage protection in the stake() function of StakingManager.sol, so the verified issue is not captured.",
+    "explanation": "None of the junior auditor\u2019s findings mention missing slippage protection in the stake function of StakingManager.sol or describe the risk of unfavorable conversion rates. The verified issue is not covered.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -212,7 +212,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings identify the lack of rate limiting in the queueWithdrawal function of StakingManager.sol, which is required to prevent spamming and performance degradation.",
+    "explanation": "The junior auditor did not report any issue regarding lack of rate limiting on queueWithdrawal in StakingManager.sol; no finding matches or partially matches the verified issue.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -222,7 +222,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings address the inaccurate emission of the Delegate event in StakingManager.sol::_distributeStake or the discrepancy between original and truncated amounts. They focus on access control, DoS, and logic validation issues but omit the event emission bug.",
+    "explanation": "None of the junior auditor's findings address the inaccurate Delegate event emission in the _distributeStake function of StakingManager.sol or the discrepancy between original and truncated delegated amounts.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -232,7 +232,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The junior auditor report does not include any finding describing the silent precision loss in decimal conversion in the _withdrawFromValidator function of StakingManager.sol. Thus the verified issue is not identified.",
+    "explanation": "None of the junior auditor's findings mention the silent precision loss in the _withdrawFromValidator function of StakingManager.sol or the decimal truncation issue leading to zero withdrawals.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -242,7 +242,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "None of the junior auditor's findings identify the missing event emission in the _withdrawFromValidator function in StakingManager.sol for rebalance withdrawals. The junior report covers other access control, DoS, and logic issues but does not mention event emissions or rebalance withdrawals.",
+    "explanation": "None of the junior auditor's findings mention the missing event emission in the _withdrawFromValidator function of StakingManager.sol or describe the inability to distinguish rebalance withdrawals. Therefore, the verified issue was not identified.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -388,6 +388,16 @@
     "index_of_finding_from_junior_auditor": 15,
     "is_fp": true,
     "finding_description_from_junior_auditor": "The emergencyPauseAll function iterates over the entire _authorizedContracts set and toggles isPaused for each entry. As the number of authorized contracts grows, the gas cost of this O(n) loop grows linearly. Once the set is large enough, emergencyPauseAll may become impossible to execute within block gas limits and will revert, preventing any emergency pause action. This is a security issue because the emergency pause is a safety mechanism intended to be callable under stress; making it potentially uncallable defeats its purpose and can lead to broader protocol risk if pausing is required during an incident. Potential impact: denial of service of the emergency pause capability, which could enable continued operation under unsafe conditions or hinder incident response."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 16,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The contract follows the upgradeable pattern and provides a public initialize() function guarded by the initializer modifier. While the implementation contract's constructor disables initializers, if a proxy pointing to this logic is deployed without atomically calling initialize in the same transaction, any external account can call initialize first and grant themselves DEFAULT_ADMIN_ROLE, PAUSER_ROLE, UNPAUSER_ROLE, and PAUSE_ALL_ROLE by supplying their own addresses as parameters. This results in unauthorized control over the registry: the attacker could authorize arbitrary contracts, pause/unpause targets, or permanently disrupt operations. Potential impact: complete takeover of access control leading to unauthorized actions and denial of service."
   },
   {
     "is_match": false,

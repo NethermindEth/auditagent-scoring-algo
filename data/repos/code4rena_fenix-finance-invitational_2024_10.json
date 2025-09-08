@@ -1,0 +1,21 @@
+{
+  "project_id": "code4rena_fenix-finance-invitational_2024_10",
+  "name": "Fenix Finance Invitational",
+  "platform": "code4rena",
+  "repositoryURL": "https://github.com/code-423n4/2024-09-fenix-finance",
+  "contractFiles": [
+    "/contracts/core/VotingEscrowUpgradeableV2.sol",
+    "/contracts/core/VoterUpgradeableV2.sol",
+    "/contracts/core/libraries/LibVotingEscrowValidation.sol"
+  ],
+  "docs": {},
+  "codebases": [
+    {
+      "codebase_id": "Fenix Finance Invitational_main",
+      "repo_url": "https://github.com/code-423n4/2024-09-fenix-finance",
+      "commit": "main",
+      "tree_url": "https://github.com/code-423n4/2024-09-fenix-finance/tree/main",
+      "tarball_url": "https://github.com/code-423n4/2024-09-fenix-finance/archive/main.tar.gz"
+    }
+  ]
+}

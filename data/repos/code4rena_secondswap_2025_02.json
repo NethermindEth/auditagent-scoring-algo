@@ -1,0 +1,25 @@
+{
+  "project_id": "code4rena_secondswap_2025_02",
+  "name": "SecondSwap",
+  "platform": "code4rena",
+  "repositoryURL": "https://github.com/code-423n4/2024-12-secondswap",
+  "contractFiles": [
+    "/contracts/SecondSwap_Marketplace.sol",
+    "/contracts/SecondSwap_MarketplaceSetting.sol",
+    "/contracts/SecondSwap_StepVesting.sol",
+    "/contracts/SecondSwap_VestingDeployer.sol",
+    "/contracts/SecondSwap_VestingManager.sol",
+    "/contracts/SecondSwap_Whitelist.sol",
+    "/contracts/SecondSwap_WhitelistDeployer.sol"
+  ],
+  "docs": {},
+  "codebases": [
+    {
+      "codebase_id": "SecondSwap_214849",
+      "repo_url": "https://github.com/code-423n4/2024-12-secondswap",
+      "commit": "214849c3517eb26b31fe194bceae65cb0f52d2c0",
+      "tree_url": "https://github.com/code-423n4/2024-12-secondswap/tree/214849c3517eb26b31fe194bceae65cb0f52d2c0",
+      "tarball_url": "https://github.com/code-423n4/2024-12-secondswap/archive/214849c3517eb26b31fe194bceae65cb0f52d2c0.tar.gz"
+    }
+  ]
+}
