@@ -2,8 +2,8 @@
 
 Minimal standalone Python CLI to run the same evaluation pipeline as the Next.js app, but able to work against an external data repo. It:
 
-- Targets an external data root with folders like: `auditagent/`, `hound/`, `repos/`, `source_of_truth/`
-- Reads scan results from `<data_root>/<scan_source>/<repo>_results.json` (e.g., `auditagent/` or `hound/`)
+- Targets an external data root with folders like: `auditagent/`, `baseline/`, `repos/`, `source_of_truth/`
+- Reads scan results from `<data_root>/<scan_source>/<repo>_results.json` (e.g., `auditagent/` or `baseline/`)
 - Reads source-of-truth findings from `<data_root>/source_of_truth/<repo>.json`
 - Evaluates per-batch with the same prompt, running `ITERATIONS` per batch (default: 3 via `config.py`)
 - Post-processes partial matches and appends false positives
@@ -32,8 +32,8 @@ All runtime options are set in `scoring_algo/settings.py` (env prefix `SCORING_`
 - `MODEL`: OpenAI model name (must be in `SUPPORTED_MODELS`)
 - `ITERATIONS`: number of LLM runs per batch prompt (default: 3)
 - `BATCH_SIZE`: number of scan findings per batch (default: 10)
-- `SCAN_SOURCE`: which folder under data-root to read scan results from (`auditagent` or `hound`)
-- `DATA_ROOT`: base directory containing `auditagent/`, `hound/`, `repos/`, `source_of_truth/`
+- `SCAN_SOURCE`: which folder under data-root to read scan results from (`auditagent` or `baseline`)
+- `DATA_ROOT`: base directory containing `auditagent/`, `baseline/`, `repos/`, `source_of_truth/`
 - `OUTPUT_ROOT`: directory where `<repo>_results.json` will be written
 - `DEBUG_PROMPT`: whether to write the rendered prompt beside results
 
@@ -55,13 +55,13 @@ The runner validates the presence of: `<DATA_ROOT>/<SCAN_SOURCE>/<repo>_results.
 Generate a Markdown report from existing results in `OUTPUT_ROOT` (or any benchmarks folder) without re-running evaluation. When `--out` is relative, it is written inside `--benchmarks`:
 
 ```bash
-scoring-algo-report --benchmarks ./benchmarks --scan-root ./data/hound --out REPORT.md
+scoring-algo-report --benchmarks ./benchmarks --scan-root ./data/baseline --out REPORT.md
 ```
 
 Module alternative:
 
 ```bash
-python -m scoring_algo.generate_report --benchmarks ./benchmarks --scan-root ./data/hound --out REPORT.md
+python -m scoring_algo.generate_report --benchmarks ./benchmarks --scan-root ./data/baseline --out REPORT.md
 ```
 
 ### Quickstart
@@ -72,7 +72,7 @@ python -m venv .venv
 pip install -e .
 setx OPENAI_API_KEY YOUR_KEY_HERE  # Windows permanent env; or set in .env
 scoring-algo evaluate --no-telemetry --log-level INFO
-scoring-algo report --benchmarks ./benchmarks --scan-root ./data/hound --out REPORT.md
+scoring-algo report --benchmarks ./benchmarks --scan-root ./data/baseline --out REPORT.md
 ```
 
 ### Scoring behavior

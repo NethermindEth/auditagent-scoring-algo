@@ -24,14 +24,5 @@
       "tree_url": "https://github.com/code-423n4/2024-12-lambowin/tree/main",
       "tarball_url": "https://github.com/code-423n4/2024-12-lambowin/archive/main.tar.gz"
     }
-  ],
-  "hound": {
-    "graphs": 5,
-    "graph_iterations": 8,
-    "analysis_iterations": null,
-    "analysis_time_limit_minutes": 240,
-    "plan_n": 5,
-    "reuse_graphs": true,
-    "force_graphs": false
-  }
+  ]
 }

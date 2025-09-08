@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     MODEL: str = "o4-mini"
     ITERATIONS: int = 3
     BATCH_SIZE: int = 10
-    SCAN_SOURCE: str = "hound"
+    SCAN_SOURCE: str = "baseline"
     DATA_ROOT: str = "../data"
     OUTPUT_ROOT: str = "../benchmarks"
     DEBUG_PROMPT: bool = False

@@ -147,7 +147,7 @@ def read_scan_results(repository: str, data_root: Path, scan_source: str) -> Lis
         # e.g., auditagent exporting a plain array of finding objects
         items = data
     elif isinstance(data, dict):
-        # e.g., hound shape { project, findings: [...] }
+        # e.g., baseline shape { project, findings: [...] }
         if isinstance(data.get("findings"), list):
             items = []
             for f in data["findings"]:

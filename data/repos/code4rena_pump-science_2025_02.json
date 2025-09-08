@@ -39,14 +39,5 @@
       "tree_url": "https://github.com/code-423n4/2025-01-pump-science/tree/768ef58478724bf6b464c9f0952e3e5a3b2a2613",
       "tarball_url": "https://github.com/code-423n4/2025-01-pump-science/archive/768ef58478724bf6b464c9f0952e3e5a3b2a2613.tar.gz"
     }
-  ],
-  "hound": {
-    "graphs": 5,
-    "graph_iterations": 8,
-    "analysis_iterations": null,
-    "analysis_time_limit_minutes": 240,
-    "plan_n": 5,
-    "reuse_graphs": true,
-    "force_graphs": false
-  }
+  ]
 }

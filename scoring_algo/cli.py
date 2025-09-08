@@ -69,7 +69,7 @@ def report(
         Path("../benchmarks"), "--benchmarks", help="Benchmarks folder"
     ),
     scan_root: Path = typer.Option(
-        Path("../data/hound"), "--scan-root", help="Path to scan results root"
+        Path("../data/baseline"), "--scan-root", help="Path to scan results root"
     ),
 ):
     load_dotenv()

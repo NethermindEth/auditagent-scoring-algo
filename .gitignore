@@ -8,6 +8,7 @@ wheels/
 .hypothesis/
 .mypy_cache/
 .pytest_cache/
+scoring_algo/__pycache__
 
 # Virtual environments
 .venv

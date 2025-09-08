@@ -393,7 +393,7 @@ def main():
         "--scan-root",
         type=Path,
         default=None,
-        help="Optional path to original scan results (e.g., auditagent/ or hound/)",
+        help="Optional path to original scan results (e.g., auditagent/ or baseline/)",
     )
     parser.add_argument(
         "--out", type=Path, default=Path("REPORT.md"), help="Output Markdown file path"
