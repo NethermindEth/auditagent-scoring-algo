@@ -1,4 +1,4 @@
-## Python Benchmark Runner
+## Scoring Algorithm | Python version
 
 Minimal standalone Python CLI to run the same evaluation pipeline as the Next.js app, but able to work against an external data repo. It:
 
