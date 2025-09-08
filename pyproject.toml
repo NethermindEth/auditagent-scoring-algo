@@ -1,0 +1,68 @@
+[project]
+name = "scoring-algo"
+version = "0.1.0"
+description = "Scoring algorithm to evaluate the accuracy of AI generated findings"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "openai==1.101.0",
+    "python-dotenv==1.0.1",
+    "typer==0.17.3",
+    "rich==14.1.0",
+    "orjson==3.11.3",
+    "langfuse==3.1.3",
+    "pydantic==2.11.7",
+    "tiktoken==0.11.0",
+    "pydantic-settings==2.6.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black==25.1.0",
+    "isort==6.0.1",
+    "flake8==7.3.0",
+    "mypy==1.16.1",
+    "pre-commit==4.2.0",
+    "pydantic[mypy]==2.11.7",
+]
+
+[project.scripts]
+scoring-algo = "scoring_algo.cli:app"
+scoring-algo-report = "scoring_algo.generate_report:main"
+
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["scoring_algo*"]
+exclude = ["data*", "benchmarks*", "tests*"]
+
+[tool.black]
+line-length = 100
+exclude = ".git,__pycache__,env,venv,dist,build"
+
+[tool.flake8]
+max-line-length = 100
+exclude = ".git,__pycache__,env,venv,dist,build"
+
+[tool.pylint]
+max-line-length = 100
+disable = "C0114,W1203,C0116,C0115"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.isort]
+profile = "black"
+line_length = 100
+filter_files = true
+skip = "build"
+
+[tool.mypy]
+python_version = "3.12"
+files = "scoring_algo/"
+exclude = ".git,__pycache__,env,venv,dist,build/"
+ignore_missing_imports = true
+plugins = ['pydantic.mypy']

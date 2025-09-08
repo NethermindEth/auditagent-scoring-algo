@@ -1,0 +1,60 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        types: [python]
+        exclude: \.git|__pycache__|\.venv|env|venv|build|dist
+        files: \.py$
+
+  - repo: https://github.com/pycqa/isort
+    rev: 6.0.1
+    hooks:
+      - id: isort
+        types: [python]
+        files: scoring_algo/
+
+  # - repo: https://github.com/PyCQA/flake8
+  #   rev: 7.3.0
+  #   hooks:
+  #     - id: flake8
+  #       args: [--max-line-length=100]
+  #       types: [python]
+  #       files: scoring_algo/
+  #       exclude: .git,__pycache__,env,venv,dist,build
+
+
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v1.16.1
+  #   hooks:
+  #     - id: mypy
+  #       types: [python]
+  #       files: scoring_algo/
+  #       exclude: .git,__pycache__,env,venv,dist,build
+  #       additional_dependencies: [
+  #         types-requests,
+  #         types-PyYAML,
+  #         types-setuptools,
+  #         types-python-dateutil,
+  #         "pydantic[mypy]",
+  #         types-toml
+  #       ]
+  #       args:
+  #         - --config-file=pyproject.toml
+  #       pass_filenames: false
+
+  # - repo: https://github.com/pylint-dev/pylint
+  #   rev: v3.3.7
+  #   hooks:
+  #     - id: pylint
+  #       types: [python]
+  #       files: \.py$
+  #       args:
+  #         - --output-format=colorized
+  #         - '--msg-template={path}:{line}:{column}: {msg_id}: {msg} ({symbol})'
+  #       verbose: true
+  #       additional_dependencies: [pydantic, toml, pytest]
+
+
+
+

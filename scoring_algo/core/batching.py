@@ -4,11 +4,11 @@ import json
 from pathlib import Path
 from typing import List, Optional
 
-from .types import Vulnerability, WorkingResult, Finding
-from .prompt import CALCULATE_PROMPT
-from .llm import LLMClient
 from .iteration import get_best_response
+from .llm import LLMClient
+from .prompt import CALCULATE_PROMPT
 from .storage import store_debug_prompt
+from .types import Finding, Vulnerability, WorkingResult
 
 
 def build_batches(findings: List[WorkingResult], batch_size: int) -> List[List[WorkingResult]]:

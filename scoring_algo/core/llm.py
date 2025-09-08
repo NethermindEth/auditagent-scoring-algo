@@ -4,13 +4,12 @@ import json
 import os
 from typing import Optional
 
-from langfuse.types import List
 import tiktoken
-
 from langfuse.openai import OpenAI
-from langfuse import get_client, observe
+from langfuse.types import List
 
-from config import SUPPORTED_MODELS
+from ..settings import Settings
+from .telemetry import observe, update_generation
 from .types import Finding
 
 
@@ -34,7 +33,8 @@ class LLMClient:
     @classmethod
     def is_model_supported(cls, model: str) -> bool:
         """Check if a model is supported by any provider."""
-        for models in SUPPORTED_MODELS.values():
+        cfg = Settings()
+        for models in cfg.SUPPORTED_MODELS.values():
             if model in models:
                 return True
         return False
@@ -51,12 +51,14 @@ class LLMClient:
             parsed_response: Optional[Finding] = getattr(response, "output_parsed", None)
             input_text = _openai_messages_langfuse(messages)
             output_text = str(parsed_response)
-            _update_langfuse(
-                model_type=self.model,
-                input_tokens=count_tokens(input_text),
-                output_tokens=count_tokens(output_text),
-                input_text=input_text,
-                output_text=output_text,
+            update_generation(
+                model=self.model,
+                usage_details={
+                    "input": count_tokens(input_text),
+                    "output": count_tokens(output_text),
+                },
+                input=input_text,
+                output=output_text,
             )
             return parsed_response
         except Exception as e:
@@ -71,37 +73,6 @@ def _responses_input_from_text(text: str) -> list[dict]:
             "content": text,
         }
     ]
-
-
-def _update_langfuse(
-    model_type: str,
-    input_tokens: int,
-    output_tokens: int,
-    input_text: str | None = None,
-    output_text: str | None = None,
-):
-    """
-    Update Langfuse with token usage and, when provided, input/output text so the
-    trace displays nicely (markdown-enabled in the UI).
-    """
-    try:
-        langfuse = get_client()
-        usage_details = {
-            "input": input_tokens,
-            "output": output_tokens,
-        }
-        payload: dict = {
-            "model": model_type,
-            "usage_details": usage_details,
-        }
-        if input_text is not None:
-            payload["input"] = input_text
-        if output_text is not None:
-            payload["output"] = output_text
-
-        langfuse.update_current_generation(**payload)
-    except Exception as e:
-        print(f"Failed to update Langfuse metrics: {e}")
 
 
 def count_tokens(text: str) -> int:

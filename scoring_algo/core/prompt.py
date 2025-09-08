@@ -1,10 +1,10 @@
-CALCULATE_PROMPT = """Formatting re-enabled. 
-You are a **smart contracts security expert** tasked with evaluating the accuracy of a junior auditor's security report. 
+CALCULATE_PROMPT = """Formatting re-enabled.
+You are a **smart contracts security expert** tasked with evaluating the accuracy of a junior auditor's security report.
 
 ## **Context:**
-You are provided with two pieces of information found in the same source code: 
-    1. **A verified security issue** identified by a senior auditor (this serves as the **ground truth**). 
-    2. **A full security report** produced by a junior auditor.
+You are provided with two pieces of information found in the same source code:
+1. **A verified security issue** identified by a senior auditor (this serves as the **ground truth**).
+2. **A serie of findings** produced by a junior auditor.
 
 Your task is to determine whether the **junior auditor successfully identified the verified security issue** in his report.
 
@@ -32,16 +32,16 @@ If a match is found, select the **closest** matching finding from the junior aud
 Return a **JSON object** with the **exact structure** below **(no additional text, reasoning, or chain-of-thought)**:
 ```json
 {
-    "is_match": boolean,
-    "is_partial_match": boolean,
-    "explanation": "string",
-    "severity_from_junior_auditor": "string", // The severity level reported by the junior auditor.
-    "severity_from_truth": "string", // The severity level from the verified report.
-    "index_of_finding_from_junior_auditor": number, // The index (0-based) of the matching finding in the junior auditor's report array.
+    "is_match": True,
+    "is_partial_match": False,
+    "explanation": "The finding is a match for the verified issue because...",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": 2,
 }
 ```
 
-### **Important considerations:**
+## **Important considerations:**
 - Return the index (0-based) of the finding in the junior auditor's report array that matches or partially matches the verified issue.
 - If no match is found, set "index_of_finding_from_junior_auditor" to -1.
 - Use "N/A" for any missing severity.

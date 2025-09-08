@@ -1,2 +1,21 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+dist/
+build/
+wheels/
+*.egg-info
+.hypothesis/
+.mypy_cache/
+.pytest_cache/
+
+# Virtual environments
 .venv
-.env
+
+# Environment variables
+.env*
+!.env.example
+
+# Coverage
+.coverage
+htmlcov/

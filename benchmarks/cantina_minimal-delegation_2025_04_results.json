@@ -2,7 +2,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The verified issue is front-running of execute calls due to publicly callable execution that accepts a signed digest without binding an executor address. The junior auditor's closest finding (index 1) describes nonce consumption before signature verification causing a Denial-of-Service on execute(SignedBatchedCall) in MinimalDelegation.sol, which is a different root cause and does not accurately describe the front-running vulnerability or its consequences.",
+    "explanation": "No junior finding matches or partially matches the verified front-running issue. The ground-truth issue concerns execute() front-running due to publicly callable function and lack of executor identity in SignedBatchedCall flow (MinimalDelegation.sol). The junior report instead contains findings about unrelated topics (e.g., unchecked calldata in CalldataDecoder.sol, nonce handling before verification in MinimalDelegation.sol, etc.). Therefore there is no valid or partial match.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "High",
     "index_of_finding_from_junior_auditor": -1,
@@ -12,7 +12,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior finding matches the ground-truth issue. The verified issue describes an out-of-gas/gas-forwarding vulnerability in execute (due to EIP-150 63/64 gas forwarding) that can cause a batch to partially succeed without revert. The junior auditor\u2019s findings do not describe this gas-forwarding issue; the closest one (Index 1) discusses nonce consumption before signature verification in MinimalDelegation.sol, which is a different DoS vulnerability. Therefore there is neither a full nor a partial match.",
+    "explanation": "The verified issue describes a gas-forwarding vulnerability in MinimalDelegation.sol's execute(...) where subcalls can be forced out of gas due to the EIP-150 63/64 gas rule, potentially causing a batch to partially complete without a revert. The junior auditor's MinimalDelegation.sol finding discusses consuming the nonce before signature verification, enabling a Denial-of-Service via nonce misuse. This is a different root cause and consequence, and does not accurately describe the core issue or its impact. Therefore there is no match.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "High",
     "index_of_finding_from_junior_auditor": -1,
@@ -22,7 +22,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior finding correctly matches the verified issue 'Potential double-counting allowance risk' in TheMinimalDelegationwallet. The verified issue describes two forms of native allowances (ephemeral and persistent) that can stack to exceed a user\u2019s intended limit. The junior auditor's findings discuss various concerns, but none identify the two-form allowance stacking in MinimalDelegation (or describe cross-form double-counting across ephemeral/persistent allowances). The closest topics relate to allowances and domain/separation issues (e.g., TransientAllowance.sol), but these do not constitute a valid or partial match to the ground truth by contract, function, core issue, and consequences criteria.",
+    "explanation": "No junior finding matches the verified issue. The ground-truth issue describes a double-counting of two forms of native allowances (ephemeral and persistent) in TheMinimalDelegationwallet, potentially allowing over-spending. None of the junior auditor's findings correctly identify this specific stacking/over-allocation flaw. The closest items concern allowances in a different context or transient storage design but do not describe the exact double-counting risk or its consequences.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -32,27 +32,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The verified issue describes an off-by-one error in isExpired(), related to how expiration is compared to block.timestamp. None of the junior auditor's findings mention isExpired(), expiration handling, or any off-by-one comparisons tied to expiration. Therefore there is no exact or partial match to the ground truth.",
-    "severity_from_junior_auditor": "N/A",
-    "severity_from_truth": "Low",
-    "index_of_finding_from_junior_auditor": -1,
-    "is_fp": false,
-    "finding_description_from_junior_auditor": "NOT FOUND"
-  },
-  {
-    "is_match": false,
-    "is_partial_match": true,
-    "explanation": "The junior finding targets a nonce-management issue in MinimalDelegation.sol: nonce is consumed before signature verification in _handleVerifySignature, enabling a DoS by unauthorized callers to mark nonces as used and potentially block legitimate signed operations (execute(SignedBatchedCall)). This relates to the general theme of nonce management but does not describe the specific ground-truth issue of privilege escalation via cross-admin nonce invalidation or front-run opportunities. It correctly identifies the contract and function and describes a concrete consequence (DoS), but the core issue and its privilege-escalation implications differ from the verified report, making it a partial match rather than a full match.",
-    "severity_from_junior_auditor": "Medium",
-    "severity_from_truth": "Low",
-    "index_of_finding_from_junior_auditor": 1,
-    "is_fp": false,
-    "finding_description_from_junior_auditor": "In _handleVerifySignature, the nonce is consumed via _useNonce(signedBatchedCall.nonce) before the signature is verified. Because execute(SignedBatchedCall, bytes) is publicly callable, any external caller can submit arbitrary data to this function and cause nonces to be marked as used even when the signature is invalid (the call later reverts with InvalidSignature). If the NonceManager enforces sequential or otherwise predictable nonces, an attacker can pre-consume expected nonces (e.g., 0,1,2,...) and deny legitimate transactions from being executed, or invalidate pre-signed messages. Even if nonces are not strictly sequential, an attacker can still grief by burning arbitrary nonces. This is a denial-of-service via nonce misuse.\n\nWhere: MinimalDelegation._handleVerifySignature() (first statement), called from execute(SignedBatchedCall, bytes).\n\nWhy it's a security issue: Nonces are intended to prevent replay for authorized operations. Consuming the nonce before verifying authorization lets unauthorized callers invalidate nonces.\n\nPotential impact: Denial of service against legitimate signers by blocking expected nonces or invalidating pre-signed operations. Severity depends on the NonceManager design (sequential vs. arbitrary nonces) but can fully brick the \"signed execute\" flow if sequential nonces are used."
-  },
-  {
-    "is_match": false,
-    "is_partial_match": false,
-    "explanation": "No junior finding matches the verified issue. The ground-truth issue concerns _checkExpiry reverting after a valid signature in validateUserOp when the signature is expired, causing a KeyExpired error. None of the junior findings describe this expiry check or the post-signature expiry revert flow. The closest related item is finding 7 (verify() secp256k1 path can revert on malformed signatures), but that describes signature verification failures, not expiry handling in validateUserOp.",
+    "explanation": "No junior auditor finding matches the verified off-by-one isExpired issue. The ground truth concerns expiration checks and validUntil/invalidations logic (isExpired, expiration vs block.timestamp) in the protocol, whereas none of the junior findings reference isExpired, expiration comparisons, validUntil semantics, or block.timestamp in a related context.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Low",
     "index_of_finding_from_junior_auditor": -1,
@@ -62,7 +42,47 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The verified issue concerns ModeDecoder implementing a subset of EIP-7821 (InModeDecoder and MinimalDelegation), including details about execute and supportsExecutionMode. None of the junior auditor's findings reference ModeDecoder, InModeDecoder, MinimalDelegation, or EIP-7821. All findings pertain to other contracts (CalldataDecoder.sol, MinimalDelegation.sol, TransientAllowance.sol, SettingsLib.sol, Multicall.sol, KeyLib.sol, WebAuthnP256 branch in KeyLib.sol, etc.) and describe unrelated problems. Therefore there is no valid or partial match to the ground-truth issue.",
+    "explanation": "The verified issue describes potential privilege escalation in nonce management across InNonceManager (shared nonce state) enabling admin-controlled nonce invalidation and possible front-running to invalidate executes. The junior auditor's finding focuses on a nonce being consumed before signature verification within MinimalDelegation.sol's _handleVerifySignature(), describing a DoS risk in a different contract/function path and without addressing privilege escalation or cross-contract nonce semantics. Thus, it does not correctly identify the same contract, the same core issue, or the same potential consequences.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "No junior finding matches the verified issue. The ground truth concerns an expiry check (_checkExpiry) that reverts after signature validation in validateUserOp, causing a revert rather than returning SIG_VALIDATION_FAILED as per EIP-4337. None of the junior findings mention _checkExpiry, validateUserOp, or an expiry-based revert in the signature validation flow. The closest finding discusses revert behavior in verify() for malformed signatures, but it does not describe the expiry-after-validation scenario.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "No junior auditor finding identifies the verified ModeDecoder EIP-7821 issue. None of the findings reference ModeDecoder, InModeDecoder, MinimalDelegation.execute mode handling, or EIP-7821 mode parsing. The closest findings discuss unrelated topics (unchecked calldata length, nonce handling, transient storage, admin masking, multicall value reuse, signature verification DoS, root key sentinel, and WebAuthn). Therefore there is no valid or partial match.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Info",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": true,
+    "is_partial_match": false,
+    "explanation": "The finding at index 5 correctly targets the SettingsLib.sol contract and the isAdmin(Settings) function. It describes the underlying admin-bit handling issue: shifting by 200 bits and interpreting the result as a boolean without masking to 8 bits causes the top 6 bytes to influence isAdmin, effectively misreporting the admin region and enabling privilege escalation. This aligns with the verified issue's claim that the documented comment about the admin region was incorrect (bits 200..255 are admin, not 248..255). Therefore, it matches the ground truth issue, even though the junior's write-up describes the implementation bug rather than the documentation error.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "Info",
+    "index_of_finding_from_junior_auditor": 5,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "The isAdmin function shifts the Settings value right by 200 bits and directly interprets the result as a boolean without masking to the intended 8-bit isAdmin field. Because the top 6 bytes are marked as UNUSED, any non-zero bits in those 6 bytes will also be shifted into the returned value, causing isAdmin() to evaluate to true even if the isAdmin byte itself is zero. This occurs in isAdmin(Settings) at lines 21-24 (specifically _isAdmin := shr(200, settings)). This is a security issue because any code that relies on SettingsLib.isAdmin for access control can be bypassed if an attacker can set or influence the top 6 bytes of the Settings value (e.g., by providing or constructing a Settings with bits set above bit 207). Impact: unauthorized admin privilege, leading to potential fund loss, unauthorized state changes, or protocol manipulation. A fix is to mask to the isAdmin byte before converting to bool, e.g., _isAdmin := iszero(iszero(and(shr(200, settings), 0xFF)))."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "No finding from the junior auditor correctly identifies the verified issue 'hookData is not included in the signature digest' in MinimalDelegation.sol. The junior findings cover unrelated issues (calldata underflow, nonce DoS, transient storage collisions, hard EIP-1153 dependency, multicall value reuse, signature verification behavior, etc.) but none describe hookData omission from the EIP-712 digest or its impact. Therefore there is no valid or partial match.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -72,7 +92,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The verified issue describes a documentation/comment mismatch in SettingsLib (TheSettingsLib library) regarding the bit region used for the admin portion (bits 200..255 vs an 8-bit admin field). The junior auditor\u2019s findings include multiple issues, with the closest being an isAdmin check in SettingsLib.sol that discusses a code-level masking problem and potential privilege escalation due to reading bits beyond the intended 8-bit field. However, that finding does not acknowledge or address the specific incorrect comment about the bit layout, and it identifies a distinct runtime vulnerability rather than the documentation error described in the ground truth. Therefore, there is no direct match (or valid partial match) to the verified issue.",
+    "explanation": "No finding in the junior auditor's report correctly identifies the MinimalDelegation EntryPoint compatibility issue described in the ground truth. The verified issue concerns version-specific compatibility with executeUserOp across v0.6.0 versus v0.7.0/v0.8.0; none of the junior findings reference MinimalDelegation's EntryPoint compatibility or the executeUserOp feature, and several findings pertain to unrelated components and issues.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -82,7 +102,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The verified issue targets hookData not being included in the EIP-712 signature digest within MinimalDelegation.sol, enabling an attacker to supply arbitrary hookData to a signed transaction. The junior auditor's findings do not mention hookData, EIP-712 digest construction, or any related hook verification vulnerability. All junior findings describe unrelated issues (e.g., nonce handling, calldata underflow, multicall value reuse, etc.). Therefore there is no valid or partial match.",
+    "explanation": "No finding in the junior auditor's report matches the verified issue. The ground truth concerns EntryPoint version compatibility: MinimalDelegation only works with v0.7.0 and v0.8.0 because executeUserOp support was introduced in v0.7.0; v0.6.0 is not supported. The junior's findings cover various issues across different files (e.g., nonce handling in MinimalDelegation.sol, calldata parsing, transient storage, multicall msg.value handling, etc.) but none describe the EntryPoint version incompatibility or the lack of executeUserOp support in v0.6.0. Therefore there is no valid or partial match.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -92,7 +112,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "Verified issue: MinimalDelegation EntryPoint compatibility across versions (requires executeUserOp support introduced in v0.7.0; v0.6.0 is incompatible). None of the junior auditor's findings accurately identify this version-compatibility issue. The closest finding relates to MinimalDelegation.sol but describes a DoS via nonce misuse in _handleVerifySignature during execute(SignedBatchedCall), which is a different security concern and does not describe the entrypoint/version compatibility problem or its consequences.",
+    "explanation": "No finding in the junior auditor's report matches the verified issue about EntryPoint Version v0.7.0 compatibility for Minimal Delegation's executeUserOp. The junior findings focus on other bugs (e.g., nonce handling, calldata parsing, transient storage, multisig, WebAuthn) and do not describe the version-specific compatibility problem or executeUserOp support introduced in v0.7.0/v0.8.0.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -102,7 +122,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The verified issue concerns EntryPoint Version v0.6.0 compatibility and executeUserOp support introduced in v0.7.0; none of the junior auditor's findings identify or describe this specific Issue/contract/behavior. The junior report covers unrelated issues in various contracts (CalldataDecoder.sol, MinimalDelegation.sol, TransientAllowance.sol, etc.) and does not mention EntryPoint, MinimalDelegation's executeUserOp flow, or v0.6.0 compatibility.",
+    "explanation": "No junior finding matches the verified issue about EntryPoint version compatibility (MinimalDelegation executeUserOp support). The junior report contains unrelated issues across multiple contracts, and none discuss EntryPoint version constraints or executeUserOp compatibility.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -112,7 +132,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior finding matches the verified issue. The ground truth describes version compatibility: MinimalDelegation's wallet only supports EntryPoint versions v0.7.0 and v0.8.0 (executeUserOp was introduced in v0.7.0). The junior report's findings are about various security issues across different contracts; the only MinimalDelegation finding (index 1) concerns nonce handling and DoS in execute(SignedBatchedCall), which is a different security issue and does not reference the EntryPoint version gating or the executeUserOp feature introduction. Therefore there is no valid or partial match.",
+    "explanation": "No findings in the junior auditor's report identify licensing or unlicensed contracts. The verified issue concerns SPDX/license compliance across the codebase, while the junior report contains runtime/security issues (CalldataDecoder, MinimalDelegation, TransientAllowance, Multicall, KeyLib, WebAuthn, etc.) and does not mention licensing. Therefore, there is no match.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -122,7 +142,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "The verified issue concerns compatibility of MinimalDelegation with specific EntryPoint versions (v0.7.0 and v0.8.0) and the introduction of executeUserOp in v0.7.0. None of the junior auditor's findings describe this cross-contract version compatibility or the EntryPoint/executeUserOp behavior. The findings cover unrelated issues across various contracts (CalldataDecoder.sol, MinimalDelegation.sol (nonce/signature DoS), TransientAllowance.sol, SettingsLib.sol, Multicall.sol, KeyLib.sol, WebAuthn, etc.) with no mention of EntryPoint version gating. Therefore there is no valid or partial match. Index of matching finding: -1.",
+    "explanation": "No junior finding matches the verified issue about ERC7914 0-amount transfers. The verified issue concerns a behavior change in ERC7914 transfers of zero value. The junior auditor's findings cover unrelated topics across several contracts (CalldataDecoder.sol, MinimalDelegation.sol, TransientAllowance.sol, Multicall.sol, KeyLib.sol) and none reference ERC7914, zero-value transfers, or the described consequences. Therefore there is no valid or partial match.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -132,7 +152,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior finding identifies or implies the ground-truth issue about licensing (unlicensed contracts). All junior findings address unrelated security topics (calldata, nonces, domain separation, admin masking, multicall, signature verification, root key handling, WebAuthn, etc.). There is no mention of SPDX/licensing in any finding, so there is no match or partial match.",
+    "explanation": "No junior auditor finding matches the verified issue. The ground-truth issue concerns _execute() potentially calling handleAfterExecute() on a stale hook due to caching and to.call() possibly triggering KeyManagement.update; none of the junior findings reference _execute(), hooks, or stale-hook semantics. Their topics cover calldata bounds, nonce handling in execute, transient storage/domain separation, EIP-1153, multicall msg.value reuse, and signature verification quirks, none of which reproduce the verified issue.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -142,27 +162,7 @@
   {
     "is_match": false,
     "is_partial_match": false,
-    "explanation": "No junior auditor findings match the verified ground-truth issue. The ground-truth issue concerns ERC7914 behavior for zero-amount transfers, while none of the junior findings reference ERC7914, zero-amount transfer handling, or related transfers in any contract. Therefore no valid or partial match is present.",
-    "severity_from_junior_auditor": "N/A",
-    "severity_from_truth": "Info",
-    "index_of_finding_from_junior_auditor": -1,
-    "is_fp": false,
-    "finding_description_from_junior_auditor": "NOT FOUND"
-  },
-  {
-    "is_match": false,
-    "is_partial_match": false,
-    "explanation": "No junior finding matches the verified issue. The ground truth describes a vulnerability where _execute() may call handleAfterExecute() on a stale hook due to to.call() caching behavior and a potential edge case if to.call() triggers KeyManagement.update(). The junior auditor's findings cover a variety of issues (calldata handling, nonce usage, cross-module storage, EIP-1153 risk, admin masking, multicall msg.value reuse, signature verification DoS, root key sentinel, and WebAuthn UV handling) but none describe a stale hook, hook execution order, or interactions around handleAfterExecute() within _execute() nor the consequences of stale hooks. The only mention of execute in the junior report (Finding 1) concerns consuming a nonce before signature verification and a DoS risk, which is a different issue with different cause and impact.",
-    "severity_from_junior_auditor": "N/A",
-    "severity_from_truth": "Info",
-    "index_of_finding_from_junior_auditor": -1,
-    "is_fp": false,
-    "finding_description_from_junior_auditor": "NOT FOUND"
-  },
-  {
-    "is_match": false,
-    "is_partial_match": false,
-    "explanation": "The verified issue concerns validateUserOp() not returning early on invalid signatures in MinimalDelegation. None of the junior auditor's findings reference validateUserOp or MinimalDelegation.validateUserOp. The closest MinimalDelegation finding (index 1) discusses nonce consumption before signature verification, which is a different issue. Therefore, there is no match or partial match to the ground-truth issue.",
+    "explanation": "The verified issue concerns validateUserOp() returning early on invalid signatures in MinimalDelegation and argues this behavior is inconsistent with the specs and could affect downstream hooks. The junior auditor's findings do not identify validateUserOp() or the same early-return/signature-flow issue. The closest finding mentions MinimalDelegation.sol but describes a different vulnerability (nonce consumption before signature verification) and does not constitute a match to the verified issue.",
     "severity_from_junior_auditor": "N/A",
     "severity_from_truth": "Info",
     "index_of_finding_from_junior_auditor": -1,
@@ -178,6 +178,16 @@
     "index_of_finding_from_junior_auditor": 0,
     "is_fp": true,
     "finding_description_from_junior_auditor": "The removeSelector function subtracts 4 from the provided bytes length in inline assembly without verifying that data.length >= 4. In inline assembly, arithmetic is unchecked; if data.length < 4 (e.g., empty or short calldata to a fallback/receive), params.length underflows to a very large value and params.offset is advanced by 4. This produces a bytes calldata slice that extends far beyond the actual calldata. Using this slice (e.g., reading params.length, copying to memory, or abi.decode) can cause denial of service via excessive memory allocation/out-of-gas and may bypass ABI input-length checks, leading to mis-decoding with zero-padded values. This occurs in removeSelector()'s assembly block where params.length := sub(data.length, 4) and params.offset := add(data.offset, 4) are set without bounds checks."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 1,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "In _handleVerifySignature, the nonce is consumed via _useNonce(signedBatchedCall.nonce) before the signature is verified. Because execute(SignedBatchedCall, bytes) is publicly callable, any external caller can submit arbitrary data to this function and cause nonces to be marked as used even when the signature is invalid (the call later reverts with InvalidSignature). If the NonceManager enforces sequential or otherwise predictable nonces, an attacker can pre-consume expected nonces (e.g., 0,1,2,...) and deny legitimate transactions from being executed, or invalidate pre-signed messages. Even if nonces are not strictly sequential, an attacker can still grief by burning arbitrary nonces. This is a denial-of-service via nonce misuse.\n\nWhere: MinimalDelegation._handleVerifySignature() (first statement), called from execute(SignedBatchedCall, bytes).\n\nWhy it's a security issue: Nonces are intended to prevent replay for authorized operations. Consuming the nonce before verifying authorization lets unauthorized callers invalidate nonces.\n\nPotential impact: Denial of service against legitimate signers by blocking expected nonces or invalidating pre-signed operations. Severity depends on the NonceManager design (sequential vs. arbitrary nonces) but can fully brick the \"signed execute\" flow if sequential nonces are used."
   },
   {
     "is_match": false,
@@ -208,16 +218,6 @@
     "index_of_finding_from_junior_auditor": 4,
     "is_fp": true,
     "finding_description_from_junior_auditor": "The library uses TLOAD/TSTORE opcodes directly. On networks that have not activated EIP-1153 (e.g., pre-Cancun or certain L2s), these opcodes are invalid and will cause any function that executes them to revert, resulting in denial of service. Without a feature flag or fallback path, deploying or calling this on unsupported chains will break functionality."
-  },
-  {
-    "is_match": false,
-    "is_partial_match": false,
-    "explanation": "The source of truth report does not contain this issue.",
-    "severity_from_junior_auditor": "High",
-    "severity_from_truth": "N/A",
-    "index_of_finding_from_junior_auditor": 5,
-    "is_fp": true,
-    "finding_description_from_junior_auditor": "The isAdmin function shifts the Settings value right by 200 bits and directly interprets the result as a boolean without masking to the intended 8-bit isAdmin field. Because the top 6 bytes are marked as UNUSED, any non-zero bits in those 6 bytes will also be shifted into the returned value, causing isAdmin() to evaluate to true even if the isAdmin byte itself is zero. This occurs in isAdmin(Settings) at lines 21-24 (specifically _isAdmin := shr(200, settings)). This is a security issue because any code that relies on SettingsLib.isAdmin for access control can be bypassed if an attacker can set or influence the top 6 bytes of the Settings value (e.g., by providing or constructing a Settings with bits set above bit 207). Impact: unauthorized admin privilege, leading to potential fund loss, unauthorized state changes, or protocol manipulation. A fix is to mask to the isAdmin byte before converting to bool, e.g., _isAdmin := iszero(iszero(and(shr(200, settings), 0xFF)))."
   },
   {
     "is_match": false,

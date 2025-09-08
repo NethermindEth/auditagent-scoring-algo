@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import List, Any, Dict
+from typing import Any, Dict, List
 
-from .types import Vulnerability, EvaluatedFinding, CategoryEnum
+from .types import CategoryEnum, EvaluatedFinding, Vulnerability
 
 
 def ensure_dir(path: Path) -> None:
@@ -23,7 +23,7 @@ def get_truth_path(repository: str, data_root: Path) -> Path:
     return data_root / "source_of_truth" / f"{repository}.json"
 
 
-def _normalize_severity(value: Any) -> str:
+def normalize_severity(value: Any) -> str:
     if not isinstance(value, str):
         return "N/A"
     v = value.strip().lower()
@@ -87,7 +87,7 @@ def _to_vulnerability(item: Dict[str, Any]) -> Vulnerability:
     # Map diverse shapes to our Vulnerability model (Pydantic)
     issue = item.get("Issue") or item.get("title") or item.get("Title") or item.get("issue") or ""
     description = item.get("Description") or item.get("description")
-    severity = _normalize_severity(item.get("Severity") or item.get("severity"))
+    severity = normalize_severity(item.get("Severity") or item.get("severity"))
     contracts = item.get("Contracts") or item.get("file") or []
     category_raw = item.get("Category") or item.get("category")
 

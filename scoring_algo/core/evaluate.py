@@ -4,16 +4,16 @@ from pathlib import Path
 from typing import List
 
 from langfuse import observe
+from rich.progress import BarColumn, Progress, TimeElapsedColumn, TimeRemainingColumn
 
-from .types import WorkingResult, EvaluatedFinding
-from .storage import (
-    read_truth_data,
-    read_scan_results,
-    store_evaluation_result,
-    get_evaluation_path,
-)
 from .batching import process_in_batches
-from rich.progress import Progress, BarColumn, TimeElapsedColumn, TimeRemainingColumn
+from .storage import (
+    get_evaluation_path,
+    read_scan_results,
+    read_truth_data,
+    store_evaluation_result,
+)
+from .types import EvaluatedFinding, WorkingResult
 
 
 @observe(name="[ScoringAlgo] Run scoring algo")

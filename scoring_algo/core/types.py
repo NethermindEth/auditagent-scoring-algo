@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import List, Dict
+from typing import Dict, List
 
 from pydantic import BaseModel, Field
 
@@ -37,7 +37,7 @@ class Vulnerability(BaseModel):
     Contracts: List[str] = Field(..., description="List of affected contract names")
     Description: str = Field(
         ...,
-        description="A detailed description of the vulnerability. The description must not include any recommendations for fixes.",
+        description="Detailed description of the vulnerability. Must not include any recommendations.",
     )
 
 
@@ -64,3 +64,24 @@ class EvaluatedFinding(Finding):
 
 
 SeverityCounts = Dict[str, int]
+
+
+class RepoStats(BaseModel):
+    repo: str
+    actual_findings: int
+    scan_findings: int
+    matched: int
+    partial: int
+    qa_findings: int
+    false_positives: int
+    false_negatives: int
+    precision: float
+    recall: float
+    f1: float
+    precision_with_partial: float
+    recall_with_partial: float
+    f1_with_partial: float
+    # Optional extra info
+    truth_severity_counts: Dict[str, int]
+    scan_severity_counts: Dict[str, int]
+    totals: Dict[str, int]
