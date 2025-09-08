@@ -1,19 +1,20 @@
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from langfuse import observe
 from rich.progress import BarColumn, Progress, TimeElapsedColumn, TimeRemainingColumn
 
-from .batching import process_in_batches
+from .batching import process_in_batches_async
 from .storage import (
     get_evaluation_path,
     read_scan_results,
     read_truth_data,
     store_evaluation_result,
 )
-from .types import EvaluatedFinding, WorkingResult
+from .types import EvaluatedFinding, Finding, WorkingResult
 
 
 @observe(name="[ScoringAlgo] Run scoring algo")
@@ -57,24 +58,34 @@ def run_evaluation(
         TimeRemainingColumn(),
     ) as progress:
         task = progress.add_task(f"Evaluating {repo_name} ({len(truth)} issues)", total=len(truth))
-        for idx, finding in enumerate(truth):
-            content = process_in_batches(
-                all_findings=working_results,
-                repo_name=repo_name,
-                truth_finding=finding,
-                model=model,
-                iterations=iterations,
-                batch_size=batch_size,
-                debug_prompt=debug_prompt,
-                output_root=output_root,
-            )
+
+        async def _process_all():
+            out: list[tuple[int, Optional[EvaluatedFinding], Optional[Finding]]] = []
+            for idx, finding in enumerate(truth):
+                content = await process_in_batches_async(
+                    all_findings=working_results,
+                    repo_name=repo_name,
+                    truth_finding=finding,
+                    model=model,
+                    iterations=iterations,
+                    batch_size=batch_size,
+                    debug_prompt=debug_prompt,
+                    output_root=output_root,
+                )
+                out.append((idx, None, content))
+                progress.update(task, advance=1)
+            return out
+
+        # Run the whole evaluation in one event loop to avoid loop churn
+        results_async = asyncio.run(_process_all())
+        for idx, _, content in results_async:
 
             if not content:
-                progress.update(task, advance=1)
                 continue
 
             # Enforce severity from truth (string form)
-            truth_severity = getattr(finding.Severity, "value", finding.Severity)
+            truth_item = truth[idx]
+            truth_severity = getattr(truth_item.Severity, "value", truth_item.Severity)
             if content.severity_from_truth != truth_severity:
                 content.severity_from_truth = truth_severity
 
@@ -104,7 +115,7 @@ def run_evaluation(
             if content.is_match and 0 <= working_index < len(working_results):
                 working_results.pop(working_index)
 
-            progress.update(task, advance=1)
+            # progress already updated inside _process_all
 
     processed = post_process_partial_matches(evaluated)
 
@@ -158,7 +169,7 @@ def post_process_partial_matches(results: List[EvaluatedFinding]) -> List[Evalua
                         **f.__dict__,
                         "is_partial_match": False,
                         "explanation": f.explanation
-                        + " (Note: This finding was already counted as a true match for another issue, so it's not counted as a partial match here.)",
+                        + " (Already counted as TP elsewhere, so not counted as partial here.)",
                     }
                 )
             elif idx in partial_indices:
@@ -167,7 +178,7 @@ def post_process_partial_matches(results: List[EvaluatedFinding]) -> List[Evalua
                         **f.__dict__,
                         "is_partial_match": False,
                         "explanation": f.explanation
-                        + " (Note: This finding was already counted as a partial match for another issue, so it's not counted here.)",
+                        + " (Already counted as partial elsewhere, so not counted here.)",
                     }
                 )
             else:

@@ -14,14 +14,14 @@ repos:
         types: [python]
         files: scoring_algo/
 
-  # - repo: https://github.com/PyCQA/flake8
-  #   rev: 7.3.0
-  #   hooks:
-  #     - id: flake8
-  #       args: [--max-line-length=100]
-  #       types: [python]
-  #       files: scoring_algo/
-  #       exclude: .git,__pycache__,env,venv,dist,build
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.3.0
+    hooks:
+      - id: flake8
+        args: [--max-line-length=100]
+        types: [python]
+        files: scoring_algo/
+        exclude: .git,__pycache__,env,venv,dist,build
 
 
   # - repo: https://github.com/pre-commit/mirrors-mypy

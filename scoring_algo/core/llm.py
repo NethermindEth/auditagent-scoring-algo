@@ -5,7 +5,7 @@ import os
 from typing import Optional
 
 import tiktoken
-from langfuse.openai import OpenAI
+from langfuse.openai import AsyncOpenAI
 from langfuse.types import List
 
 from ..settings import Settings
@@ -16,7 +16,7 @@ from .types import Finding
 class LLMClient:
     def __init__(self, model: str):
         self.model = model
-        self._openai: Optional[OpenAI] = None
+        self._api_key: Optional[str] = None
 
         if not self.is_model_supported(model):
             raise ValueError(f"Unsupported model {model}")
@@ -24,11 +24,7 @@ class LLMClient:
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise RuntimeError("OPENAI_API_KEY is not set")
-        self._openai = OpenAI(api_key=api_key)
-
-    @observe(name="[LLM] Send prompt to LLM", as_type="generation")
-    def generate(self, prompt: str) -> Optional[Finding]:
-        return self._generate_openai(prompt)
+        self._api_key = api_key
 
     @classmethod
     def is_model_supported(cls, model: str) -> bool:
@@ -39,14 +35,22 @@ class LLMClient:
                 return True
         return False
 
-    def _generate_openai(self, prompt: str) -> Optional[Finding]:
+    @observe(name="[LLM] Send prompt to LLM (async)", as_type="generation")
+    async def generate_async(self, prompt: str) -> Optional[Finding]:
         try:
             messages = _responses_input_from_text(prompt)
-            response = self._openai.responses.parse(
-                model=self.model,
-                input=messages,
-                text_format=Finding,
-            )
+            client = AsyncOpenAI(api_key=self._api_key)
+            try:
+                response = await client.responses.parse(
+                    model=self.model,
+                    input=messages,
+                    text_format=Finding,
+                )
+            finally:
+                try:
+                    await client.close()
+                except Exception:
+                    pass
 
             parsed_response: Optional[Finding] = getattr(response, "output_parsed", None)
             input_text = _openai_messages_langfuse(messages)
@@ -62,7 +66,7 @@ class LLMClient:
             )
             return parsed_response
         except Exception as e:
-            print(f"[LLMPrompt] OpenAI API error for {self.model}: {e}")
+            print(f"[LLMPrompt] OpenAI API error (async) for {self.model}: {e}")
             return None
 
 
