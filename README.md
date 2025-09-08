@@ -1,6 +1,6 @@
 ## Scoring Algorithm | Python version
 
-Minimal standalone Python CLI to run the same evaluation pipeline as the Next.js app, but able to work against an external data repo. It:
+Minimal standalone Python CLI to run the same evaluation pipeline as the AuditAgent benchmark, but able to work against an external data repo as well. It:
 
 - Targets an external data root with folders like: `auditagent/`, `baseline/`, `repos/`, `source_of_truth/`
 - Reads scan results from `<data_root>/<scan_source>/<repo>_results.json` (e.g., `auditagent/` or `baseline/`)
