@@ -1,4 +1,13 @@
-## Scoring Algorithm | Python version
+<div align="center">
+
+<img src="./auditagent_logo.svg" width="200" alt="Scoring Algorithm | Python version" />
+<br><br>
+
+<h1><strong>Scoring Algorithm | Python version</strong></h1>
+
+<br>
+</div>
+
 
 Minimal standalone Python CLI to run the same evaluation pipeline as the AuditAgent benchmark, but able to work against an external data repo as well. It:
 
