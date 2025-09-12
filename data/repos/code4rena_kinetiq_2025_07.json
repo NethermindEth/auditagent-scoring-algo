@@ -4,15 +4,15 @@
   "platform": "code4rena",
   "repositoryURL": "https://github.com/code-423n4/2025-04-kinetiq/tree/7f29c917c09341672e73be2f7917edf920ea2adb",
   "contractFiles": [
+    "src/oracles/DefaultAdapter.sol",
+    "src/oracles/DefaultOracle.sol",
+    "src/oracles/IOracleAdapter.sol",
     "src/KHYPE.sol",
     "src/OracleManager.sol",
     "src/PauserRegistry.sol",
     "src/StakingAccountant.sol",
     "src/StakingManager.sol",
-    "src/ValidatorManager.sol",
-    "src/oracles/DefaultAdapter.sol",
-    "src/oracles/DefaultOracle.sol",
-    "src/validators/ValidatorSanityChecker.sol"
+    "src/ValidatorManager.sol"
   ],
   "docs": {},
   "codebases": [
