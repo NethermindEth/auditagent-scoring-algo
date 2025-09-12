@@ -1,0 +1,202 @@
+[
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The junior auditor\u2019s report contains no finding regarding the createPoolD650E2D0 signature mismatch in SeawaterAMM.sol, so the verified issue is not identified.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "High",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings identify the extraneous refund in swap_2_internal; the refund issue is not mentioned or described.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "High",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings identify the missing slippage protection on the withdrawal (update_position with negative delta) that enables sandwich attacks during user withdrawals. They focus on swap slippage casts and other issues, but do not mention the removed decr_position function or withdrawal slippage control.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "High",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings address the missing setFeeProtocol function or inability to set pool protocol fees in SeaWaterAMM.sol, so the verified issue is not identified.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings address the missing pool enabled check in the adjust_position_internal (or update_position_internal) functions. The issue around verifying pool status before pulling tokens is not mentioned in their report.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings mention the swap_internal() function or the incorrect slippage check using the || operator that allows one of the output amounts to be zero. Therefore, the verified issue was not identified.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Medium",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings addresses the missing enabled flag in the StoragePool::init function in pool.rs. All findings pertain to unrelated Solidity contract issues, so the pool initialization issue was not identified.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings mention the grant_position function or the missing ownership check issue in position ownership. Therefore, the verified issue was not identified.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor\u2019s findings reference the zero-liquidity position creation or storage exhaustion issue in the mint_position function. They all address unrelated Solidity issues.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "None of the junior auditor's findings mention duplicate imports of the U256 type or ambiguous imports, which is the core of the verified issue.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "No junior auditor finding matches the verified issue; all findings pertain to Solidity contracts and do not mention the Rust mul_mod function or its debug_assert overflow check.",
+    "severity_from_junior_auditor": "N/A",
+    "severity_from_truth": "Low",
+    "index_of_finding_from_junior_auditor": -1,
+    "is_fp": false,
+    "finding_description_from_junior_auditor": "NOT FOUND"
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 0,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "In swapIn32502CA71 and swapInPermit2CEAAB576, the code enforces the minimum-out constraint by comparing a signed value to int256(minOut): require(-swapAmountOut >= int256(minOut), ...). Casting an arbitrary uint256 to int256 is unsafe: values > 2^255 - 1 wrap into negative int256 values. If a caller supplies minOut >= 2^255, int256(minOut) becomes negative, making the comparison trivially true for any non-negative -swapAmountOut, effectively disabling the minOut protection. This undermines slippage protection and can result in users receiving less output than intended without a revert. Impact: loss of funds for callers relying on the minOut check."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 1,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "In swapOut5E08A399 and swapOutPermit23273373B, the code checks: require(swapAmountOut >= int256(minOut), ...). As above, if minOut >= 2^255, int256(minOut) becomes negative, making the check trivially pass even when swapAmountOut is small or negative (depending on executor semantics). This disables the intended minimum-out protection in these paths and can allow trades to execute with worse-than-intended outcomes for the caller."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 2,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The contract does not clear per-token approvals when an NFT is transferred. In ERC721, getApproved[tokenId] must be cleared on every transfer to prevent previously approved operators from retaining control after ownership changes. Here, _transfer() calls SEAWATER.transferPositionEEC7A3CD without resetting getApproved[_tokenId], and neither transferFrom nor safeTransferFrom clear approvals. As a result, an address approved by the previous owner remains approved after the token moves to a new owner and can immediately call transferFrom using the lingering approval to move the NFT without the new owner's consent. This can lead to loss of NFTs for recipients who are unaware of stale approvals.\n- Where: _transfer() (invoked by transferFrom and safeTransferFrom) does not clear getApproved[_tokenId]. No other function clears it.\n- Why it's a security issue: Violates ERC721 standard safety and allows unauthorized transfers after ownership changes.\n- Potential impact: Theft/loss of NFTs by previously approved operators after a sale/transfer."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "High",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 3,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The safe transfer callback check is incorrect. In _onTransferReceived, the code requires that the receiver's onERC721Received NOT return the expected selector, reverting when it does and allowing transfers when it doesn't. Specifically, it executes require(data != IERC721TokenReceiver.onERC721Received.selector, \"bad nft transfer received data\"); which is the inverse of the ERC721 requirement (it should require equality). This causes:\n- Safe transfers to ERC721-compliant contracts to revert (DoS against correct receivers).\n- Safe transfers to non-compliant contracts to succeed, potentially locking NFTs in contracts that cannot move them out.\n- Where: _onTransferReceived() function.\n- Why it's a security issue: Breaks the safety guarantees of safeTransferFrom, enabling asset lock-up and preventing interaction with compliant contracts.\n- Potential impact: Denial of service to compliant receivers; NFTs stuck in non-receiver contracts; user asset loss due to irretrievable NFTs."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 4,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "Several ERC721 methods are marked payable (transferFrom, safeTransferFrom, approve), but the contract provides no mechanism to withdraw or use received ETH. Any ETH sent alongside these calls will be permanently locked in the contract. While not an attack vector per se, it can cause user loss of funds via UI mistakes or malicious frontends prompting value transfers.\n- Where: transferFrom (both overloads), safeTransferFrom (both overloads), approve (all marked payable).\n- Why it's a security issue: ETH sent to the contract cannot be recovered, leading to user fund loss.\n- Potential impact: Permanent loss of ETH mistakenly sent with ERC721 operations."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 5,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The contract uses a custom IERC20 interface whose transfer function does not return a boolean, and the result of transfers is not checked. In sendTo(), for each token it calls tokens[x].transfer(recipient, amount) without verifying success. Many widely used ERC20 tokens either return a boolean (true/false) or revert on failure. For tokens that return false instead of reverting (e.g., some legacy or non-standard tokens), this call will succeed at the EVM level but the transfer will not occur, leading to silent failures while the function continues execution. Because there is no rescue/withdraw mechanism, such failures can leave funds permanently stuck in the faucet. Location: sendTo() loop over tokens."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 6,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The contract sends ETH using payable(recipient).send(gas) and stores the boolean return value in _rc but never checks it. If the recipient is a contract whose fallback/receive requires more than the 2300 gas stipend, or if the recipient reverts for any reason, the send will fail and return false, but execution will continue without any indication. This causes silent failures where intended recipients do not receive ETH while the faucet believes it has executed successfully, potentially leading to stuck ETH in the contract. Location: sendTo(), ETH transfer block."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Medium",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 7,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "The constructor accepts tokens and amounts arrays but does not ensure they have equal length. In sendTo(), the code iterates over tokens.length and indexes amounts[x]. If amounts.length < tokens.length, the function will revert with an out-of-bounds read on amounts, permanently breaking sendTo() for all calls. Since the arrays are immutable after deployment and there is no rescue/withdraw function, funds deposited into the contract may become unrecoverable due to a simple configuration mistake at deployment. Location: constructor (no validation) and sendTo() loop accessing amounts[x]."
+  },
+  {
+    "is_match": false,
+    "is_partial_match": false,
+    "explanation": "The source of truth report does not contain this issue.",
+    "severity_from_junior_auditor": "Low",
+    "severity_from_truth": "N/A",
+    "index_of_finding_from_junior_auditor": 8,
+    "is_fp": true,
+    "finding_description_from_junior_auditor": "Despite the comment indicating EMERGENCY_COUNCIL is for rescuing funds, there is no function to withdraw ERC20 tokens or ETH from the contract. Combined with potential token transfer failures (e.g., tokens returning false, blacklisting, or array length misconfiguration causing perpetual reverts), funds can be permanently locked in the contract with no admin path to recover them. This represents a potential loss of funds in edge cases or operational errors. Location: contract lacks any rescue/withdraw function."
+  }
+]
