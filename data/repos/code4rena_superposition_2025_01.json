@@ -1,0 +1,17 @@
+{
+  "project_id": "code4rena_superposition_2025_01",
+  "name": "Superposition",
+  "platform": "code4rena",
+  "repositoryURL": "https://github.com/code-423n4/2024-08-superposition",
+  "contractFiles": ["pkg/sol/SeawaterAMM.sol", "pkg/sol/OwnershipNFTs.sol"],
+  "docs": {},
+  "codebases": [
+    {
+      "codebase_id": "Superposition_4528c9",
+      "repo_url": "https://github.com/code-423n4/2024-08-superposition",
+      "commit": "4528c9d2dbe1550d2660dac903a8246076044905",
+      "tree_url": "https://github.com/code-423n4/2024-08-superposition/tree/4528c9d2dbe1550d2660dac903a8246076044905",
+      "tarball_url": "https://github.com/code-423n4/2024-08-superposition/archive/4528c9d2dbe1550d2660dac903a8246076044905.tar.gz"
+    }
+  ]
+}

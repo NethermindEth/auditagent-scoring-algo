@@ -7,13 +7,10 @@
     "src/LamboFactory.sol",
     "src/LamboToken.sol",
     "src/LamboVEthRouter.sol",
-    "src/Utils/LaunchPadUtils.sol",
     "src/VirtualToken.sol",
-    "src/libraries/1inchV6.sol",
-    "src/libraries/AddressLib.sol",
-    "src/libraries/ProtocolLib.sol",
-    "src/libraries/UniswapV2Library.sol",
-    "src/rebalance/LamboRebalanceOnUniwap.sol"
+    "src/rebalance/LamboRebalanceOnUniwap.sol",
+    "src/Utils/LaunchPadUtils.sol",
+    "src/libraries/UniswapV2Library.sol"
   ],
   "docs": {},
   "codebases": [

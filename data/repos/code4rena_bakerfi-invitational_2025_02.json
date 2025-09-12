@@ -1,0 +1,37 @@
+{
+  "project_id": "code4rena_bakerfi-invitational_2025_02",
+  "name": "BakerFi Invitational",
+  "platform": "code4rena",
+  "repositoryURL": "https://github.com/code-423n4/2024-12-bakerfi",
+  "contractFiles": [
+    "contracts/core/MultiCommand.sol",
+    "contracts/core/MultiStrategy.sol",
+    "contracts/core/MultiStrategyVault.sol",
+    "contracts/core/Vault.sol",
+    "contracts/core/VaultBase.sol",
+    "contracts/core/VaultRouter.sol",
+    "contracts/core/hooks/UseIERC4626.sol",
+    "contracts/core/hooks/UseLeverage.sol",
+    "contracts/core/hooks/UseOracle.sol",
+    "contracts/core/hooks/UsePermitTransfers.sol",
+    "contracts/core/hooks/UseTokenActions.sol",
+    "contracts/core/hooks/swappers/UseUnifiedSwapper.sol",
+    "contracts/core/router/Commands.sol",
+    "contracts/core/strategies/StrategyLeverage.sol",
+    "contracts/core/strategies/StrategyLeverageAAVEv3.sol",
+    "contracts/core/strategies/StrategyLeverageMorphoBlue.sol",
+    "contracts/core/strategies/StrategySupplyAAVEv3.sol",
+    "contracts/core/strategies/StrategySupplyBase.sol",
+    "contracts/core/strategies/StrategySupplyERC4626.sol",
+    "contracts/core/strategies/StrategySupplyMorpho.sol"
+  ],
+  "codebases": [
+    {
+      "codebase_id": "BakerFi Invitational_main",
+      "repo_url": "https://github.com/code-423n4/2024-12-bakerfi",
+      "commit": "main",
+      "tree_url": "https://github.com/code-423n4/2024-12-bakerfi/tree/main",
+      "tarball_url": "https://github.com/code-423n4/2024-12-bakerfi/archive/main.tar.gz"
+    }
+  ]
+}

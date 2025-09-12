@@ -4,12 +4,12 @@
   "platform": "code4rena",
   "repositoryURL": "https://github.com/code-423n4/2025-01-liquid-ron",
   "contractFiles": [
-    "src/Escrow.sol",
-    "src/LiquidProxy.sol",
-    "src/LiquidRon.sol",
-    "src/Pausable.sol",
+    "src/ValidatorTracker.sol",
     "src/RonHelper.sol",
-    "src/ValidatorTracker.sol"
+    "src/Pausable.sol",
+    "src/LiquidRon.sol",
+    "src/LiquidProxy.sol",
+    "src/Escrow.sol"
   ],
   "docs": {},
   "codebases": [
