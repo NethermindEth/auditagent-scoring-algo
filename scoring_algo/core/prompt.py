@@ -1,3 +1,4 @@
+# flake8: noqa E501
 CALCULATE_PROMPT = """Formatting re-enabled.
 You are a **smart contracts security expert** tasked with evaluating the accuracy of a junior auditor's security report.
 
@@ -26,7 +27,7 @@ A partial match is **not** a valid match, but **should allow a competent auditor
 - It **only mentions the correct function** without explaining the issue and its consequences.
 - The description is **too vague or inaccurate** to understand the problem and how to fix it. Consider a partial match in that case.
 
-If a match is found, select the **closest** matching finding from the junior auditor's report.
+If multiple matches are found, select the one with the **closest description** to the ground truth finding.
 
 ## **Output Format:**
 Return a **JSON object** with the **exact structure** below **(no additional text, reasoning, or chain-of-thought)**:
