@@ -17,6 +17,7 @@ class LLMClient:
     def __init__(self, model: str):
         self.model = model
         self._api_key: Optional[str] = None
+        self._base_url: Optional[str] = None
 
         if not self.is_model_supported(model):
             raise ValueError(f"Unsupported model {model}")
@@ -25,6 +26,10 @@ class LLMClient:
         if not api_key:
             raise RuntimeError("OPENAI_API_KEY is not set")
         self._api_key = api_key
+
+        base_url = os.getenv("OPENAI_BASE_URL")
+        if base_url:
+            self._base_url = base_url
 
     @classmethod
     def is_model_supported(cls, model: str) -> bool:
@@ -39,20 +44,33 @@ class LLMClient:
     async def generate_async(self, prompt: str) -> Optional[Finding]:
         try:
             messages = _responses_input_from_text(prompt)
-            client = AsyncOpenAI(api_key=self._api_key)
+            if self._base_url:
+                client = AsyncOpenAI(api_key=self._api_key, base_url=self._base_url)
+            else:
+                client = AsyncOpenAI(api_key=self._api_key)
             try:
-                response = await client.responses.parse(
-                    model=self.model,
-                    input=messages,
-                    text_format=Finding,
-                )
+                if self._base_url:
+                    response = await client.chat.completions.parse(
+                        model=self.model,
+                        messages=messages,
+                        response_format=Finding,
+                    )
+                else:
+                    response = await client.responses.parse(
+                        model=self.model,
+                        input=messages,
+                        text_format=Finding,
+                    )
             finally:
                 try:
                     await client.close()
                 except Exception:
                     pass
 
-            parsed_response: Optional[Finding] = getattr(response, "output_parsed", None)
+            if self._base_url:
+                parsed_response: Optional[Finding] = getattr(response.choices[0].message, "parsed", None)
+            else:
+                parsed_response: Optional[Finding] = getattr(response, "output_parsed", None)
             input_text = _openai_messages_langfuse(messages)
             output_text = str(parsed_response)
             update_generation(
