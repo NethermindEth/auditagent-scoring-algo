@@ -1,22 +1,47 @@
-# Python-generated files
+# Python
 __pycache__/
-*.py[oc]
-dist/
+*.py[cod]
+*$py.class
+*.so
+.Python
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
 wheels/
 *.egg-info
-.hypothesis/
-.mypy_cache/
-.pytest_cache/
-scoring_algo/__pycache__
+.installed.cfg
+*.egg
 
 # Virtual environments
+venv/
+env/
+ENV/
 .venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.hypothesis/
+.mypy_cache/
 
 # Environment variables
 .env*
 !.env.example
 
-# Coverage
-.coverage
-htmlcov/
+# Claude code
+.claude/

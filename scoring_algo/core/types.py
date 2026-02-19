@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Dict, List
 
 from pydantic import BaseModel, Field
 
@@ -34,7 +33,7 @@ class Vulnerability(BaseModel):
         default=CategoryEnum.OTHER, description="Category classifying the vulnerability or issue."
     )
     Severity: Severity
-    Contracts: List[str] = Field(..., description="List of affected contract names")
+    Contracts: list[str] = Field(..., description="List of affected contract names")
     Description: str = Field(
         ...,
         description="Detailed description of the vulnerability. Must not include any recommendations.",
@@ -63,7 +62,7 @@ class EvaluatedFinding(Finding):
     finding_description_from_junior_auditor: str
 
 
-SeverityCounts = Dict[str, int]
+SeverityCounts = dict[str, int]
 
 
 class RepoStats(BaseModel):
@@ -82,6 +81,6 @@ class RepoStats(BaseModel):
     recall_with_partial: float
     f1_with_partial: float
     # Optional extra info
-    truth_severity_counts: Dict[str, int]
-    scan_severity_counts: Dict[str, int]
-    totals: Dict[str, int]
+    truth_severity_counts: dict[str, int]
+    scan_severity_counts: dict[str, int]
+    totals: dict[str, int]

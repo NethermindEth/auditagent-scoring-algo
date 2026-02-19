@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
-from typing import List, Optional
 
 from langfuse import observe
 from rich import print
@@ -35,7 +34,7 @@ def run_evaluation(
     print(f"[cyan]Loaded[/cyan] truth={len(truth)} findings; junior report={len(results)} findings")
 
     # working copy with original index mapping
-    working_results: List[WorkingResult] = []
+    working_results: list[WorkingResult] = []
     for i, r in enumerate(results):
         working_results.append(
             WorkingResult(
@@ -48,7 +47,7 @@ def run_evaluation(
             )
         )
 
-    evaluated: List[EvaluatedFinding] = []
+    evaluated: list[EvaluatedFinding] = []
     with Progress(
         "{task.description}",
         BarColumn(),
@@ -61,7 +60,7 @@ def run_evaluation(
         task = progress.add_task(f"Evaluating {repo_name} ({len(truth)} issues)", total=len(truth))
 
         async def _process_all():
-            out: list[tuple[int, Optional[EvaluatedFinding], Optional[Finding]]] = []
+            out: list[tuple[int, EvaluatedFinding | None, Finding | None]] = []
             for idx, finding in enumerate(truth):
                 content = await process_in_batches(
                     all_findings=working_results,
@@ -80,7 +79,6 @@ def run_evaluation(
         # Run the whole evaluation in one event loop to avoid loop churn
         results_async = asyncio.run(_process_all())
         for idx, _, content in results_async:
-
             if not content:
                 continue
 
@@ -122,9 +120,9 @@ def run_evaluation(
 
     # add FPs: all remaining scan items not used by matches/partials
     skip_indices = set()
-    for r in processed:
-        if r.index_of_finding_from_junior_auditor >= 0:
-            skip_indices.add(r.index_of_finding_from_junior_auditor)
+    for ef in processed:
+        if ef.index_of_finding_from_junior_auditor >= 0:
+            skip_indices.add(ef.index_of_finding_from_junior_auditor)
 
     for i, r in enumerate(results):
         if i in skip_indices:
@@ -138,7 +136,7 @@ def run_evaluation(
                 is_partial_match=False,
                 is_fp=True,
                 explanation="The source of truth report does not contain this issue.",
-                severity_from_junior_auditor=r.Severity,
+                severity_from_junior_auditor=r.Severity.value,
                 severity_from_truth="N/A",
                 index_of_finding_from_junior_auditor=i,
                 finding_description_from_junior_auditor=r.Description,
@@ -150,14 +148,14 @@ def run_evaluation(
     print(f"[green]Saved results to[/green] {out_path}")
 
 
-def post_process_partial_matches(results: List[EvaluatedFinding]) -> List[EvaluatedFinding]:
+def post_process_partial_matches(results: list[EvaluatedFinding]) -> list[EvaluatedFinding]:
     true_indices = set()
     for f in results:
         if f.is_match and f.index_of_finding_from_junior_auditor >= 0:
             true_indices.add(f.index_of_finding_from_junior_auditor)
 
     partial_indices = set()
-    processed: List[EvaluatedFinding] = []
+    processed: list[EvaluatedFinding] = []
     for f in results:
         idx = f.index_of_finding_from_junior_auditor
         if idx < 0 or f.is_match:

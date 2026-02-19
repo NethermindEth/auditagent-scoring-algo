@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Optional
 
 import tiktoken
 from langfuse.openai import AsyncOpenAI
@@ -16,8 +15,8 @@ from .types import Finding
 class LLMClient:
     def __init__(self, model: str):
         self.model = model
-        self._api_key: Optional[str] = None
-        self._base_url: Optional[str] = None
+        self._api_key: str | None = None
+        self._base_url: str | None = None
 
         if not self.is_model_supported(model):
             raise ValueError(f"Unsupported model {model}")
@@ -35,13 +34,10 @@ class LLMClient:
     def is_model_supported(cls, model: str) -> bool:
         """Check if a model is supported by any provider."""
         cfg = Settings()
-        for models in cfg.SUPPORTED_MODELS.values():
-            if model in models:
-                return True
-        return False
+        return any(model in models for models in cfg.SUPPORTED_MODELS.values())
 
     @observe(name="[LLM] Send prompt to LLM (async)", as_type="generation")
-    async def generate_async(self, prompt: str) -> Optional[Finding]:
+    async def generate_async(self, prompt: str) -> Finding | None:
         try:
             messages = _responses_input_from_text(prompt)
             if self._base_url:
@@ -67,10 +63,11 @@ class LLMClient:
                 except Exception:
                     pass
 
+            parsed_response: Finding | None
             if self._base_url:
-                parsed_response: Optional[Finding] = getattr(response.choices[0].message, "parsed", None)
+                parsed_response = getattr(response.choices[0].message, "parsed", None)
             else:
-                parsed_response: Optional[Finding] = getattr(response, "output_parsed", None)
+                parsed_response = getattr(response, "output_parsed", None)
             input_text = _openai_messages_langfuse(messages)
             output_text = str(parsed_response)
             update_generation(

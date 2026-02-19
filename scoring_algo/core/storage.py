@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 from .types import CategoryEnum, EvaluatedFinding, Vulnerability
 
@@ -42,7 +42,7 @@ def normalize_severity(value: Any) -> str:
     return mapping.get(v, value.title())
 
 
-def _ensure_list(obj: Any) -> List[str]:
+def _ensure_list(obj: Any) -> list[str]:
     if obj is None:
         return []
     if isinstance(obj, list):
@@ -83,7 +83,7 @@ def _map_category_from_vulnerability_type(value: Any) -> str | None:
     return None
 
 
-def _to_vulnerability(item: Dict[str, Any]) -> Vulnerability:
+def _to_vulnerability(item: dict[str, Any]) -> Vulnerability:
     # Map diverse shapes to our Vulnerability model (Pydantic)
     issue = item.get("Issue") or item.get("title") or item.get("Title") or item.get("issue") or ""
     description = item.get("Description") or item.get("description")
@@ -91,7 +91,7 @@ def _to_vulnerability(item: Dict[str, Any]) -> Vulnerability:
     contracts = item.get("Contracts") or item.get("file") or []
     category_raw = item.get("Category") or item.get("category")
 
-    params: Dict[str, Any] = {
+    params: dict[str, Any] = {
         "Issue": str(issue),
         "Severity": severity,
         "Description": str(description),
@@ -107,13 +107,13 @@ def _to_vulnerability(item: Dict[str, Any]) -> Vulnerability:
     return Vulnerability(**params)
 
 
-def read_truth_data(repository: str, data_root: Path) -> List[Vulnerability]:
+def read_truth_data(repository: str, data_root: Path) -> list[Vulnerability]:
     path = get_truth_path(repository, data_root)
     data = json.loads(path.read_text(encoding="utf-8"))
     # Support two shapes:
     # 1) Array of items already matching our schema
     # 2) Object with { project_id, vulnerabilities: [...] } (current source_of_truth)
-    items: List[Dict[str, Any]]
+    items: list[dict[str, Any]]
     if isinstance(data, list):
         items = data
     elif isinstance(data, dict) and isinstance(data.get("vulnerabilities"), list):
@@ -139,10 +139,10 @@ def read_truth_data(repository: str, data_root: Path) -> List[Vulnerability]:
     return [_to_vulnerability(item) for item in items]
 
 
-def read_scan_results(repository: str, data_root: Path, scan_source: str) -> List[Vulnerability]:
+def read_scan_results(repository: str, data_root: Path, scan_source: str) -> list[Vulnerability]:
     path = get_scan_path(repository, data_root, scan_source)
     data = json.loads(path.read_text(encoding="utf-8"))
-    items: List[Dict[str, Any]]
+    items: list[dict[str, Any]]
     if isinstance(data, list):
         # e.g., auditagent exporting a plain array of finding objects
         items = data
@@ -168,7 +168,7 @@ def read_scan_results(repository: str, data_root: Path, scan_source: str) -> Lis
 
 
 def store_evaluation_result(
-    results: List[EvaluatedFinding], repository: str, output_root: Path
+    results: list[EvaluatedFinding], repository: str, output_root: Path
 ) -> None:
     path = get_evaluation_path(repository, output_root)
     ensure_dir(path.parent)

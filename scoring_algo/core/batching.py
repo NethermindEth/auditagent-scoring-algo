@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import json
 from pathlib import Path
-from typing import List, Optional
 
 from .iteration import get_best_response
 from .llm import LLMClient
@@ -12,12 +11,12 @@ from .storage import store_debug_prompt
 from .types import Finding, Vulnerability, WorkingResult
 
 
-def build_batches(findings: List[WorkingResult], batch_size: int) -> List[List[WorkingResult]]:
+def build_batches(findings: list[WorkingResult], batch_size: int) -> list[list[WorkingResult]]:
     return [findings[i : i + batch_size] for i in range(0, len(findings), batch_size)]  # noqa: E203
 
 
 async def process_in_batches(
-    all_findings: List[WorkingResult],
+    all_findings: list[WorkingResult],
     repo_name: str,
     truth_finding: Vulnerability,
     model: str,
@@ -25,11 +24,11 @@ async def process_in_batches(
     batch_size: int,
     debug_prompt: bool,
     output_root: Path,
-) -> Optional[Finding]:
+) -> Finding | None:
     batches = build_batches(all_findings, batch_size)
     client = LLMClient(model)
 
-    current_best: Optional[Finding] = None
+    current_best: Finding | None = None
 
     for batch_number, batch in enumerate(batches):
         working_results = [
@@ -48,7 +47,7 @@ async def process_in_batches(
         if debug_prompt:
             store_debug_prompt(prompt, repo_name, output_root)
 
-        responses: List[Finding] = await _generate_responses_for_prompt(
+        responses: list[Finding] = await _generate_responses_for_prompt(
             client=client, prompt=prompt, iterations=iterations
         )
         if not responses:
@@ -74,24 +73,22 @@ def _agree(a: Finding, b: Finding) -> bool:
         return True
     if a.is_partial_match and b.is_partial_match:
         return True
-    if not a.is_match and not a.is_partial_match and not b.is_match and not b.is_partial_match:
-        return True
-    return False
+    return not a.is_match and not a.is_partial_match and not b.is_match and not b.is_partial_match
 
 
 async def _generate_responses_for_prompt(
     client: LLMClient, prompt: str, iterations: int
-) -> List[Finding]:
-    async def _run_two() -> List[Finding]:
+) -> list[Finding]:
+    async def _run_two() -> list[Finding]:
         r1, r2 = await asyncio.gather(client.generate_async(prompt), client.generate_async(prompt))
-        out: List[Finding] = []
+        out: list[Finding] = []
         if r1:
             out.append(r1)
         if r2:
             out.append(r2)
         return out
 
-    responses: List[Finding] = []
+    responses: list[Finding] = []
     if iterations <= 1:
         r = await client.generate_async(prompt)
         if r:
@@ -117,7 +114,7 @@ def _apply_index_offset(content: Finding, batch_number: int, batch_size: int) ->
         content.index_of_finding_from_junior_auditor = int(index_wrt_working)
 
 
-def _build_prompt(truth_finding: Vulnerability, working_results: List[dict]) -> str:
+def _build_prompt(truth_finding: Vulnerability, working_results: list[dict]) -> str:
     stringified_truth = truth_finding.model_dump_json(indent=2)
     stringified_results = json.dumps(working_results, indent=2)
     return (
