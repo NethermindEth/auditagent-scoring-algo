@@ -5,7 +5,7 @@ You are a **smart contracts security expert** tasked with evaluating the accurac
 ## **Context:**
 You are provided with two pieces of information found in the same source code:
 1. **A verified security issue** identified by a senior auditor (this serves as the **ground truth**).
-2. **A serie of findings** produced by a junior auditor.
+2. **A series of findings** produced by a junior auditor.
 
 Your task is to determine whether the **junior auditor successfully identified the verified security issue** in his report.
 
@@ -33,12 +33,12 @@ If multiple matches are found, select the one with the **closest description** t
 Return a **JSON object** with the **exact structure** below **(no additional text, reasoning, or chain-of-thought)**:
 ```json
 {
-    "is_match": True,
-    "is_partial_match": False,
+    "is_match": true,
+    "is_partial_match": false,
     "explanation": "The finding is a match for the verified issue because...",
     "severity_from_junior_auditor": "High",
     "severity_from_truth": "Medium",
-    "index_of_finding_from_junior_auditor": 2,
+    "index_of_finding_from_junior_auditor": 2
 }
 ```
 
@@ -52,7 +52,7 @@ Return a **JSON object** with the **exact structure** below **(no additional tex
 ## **Verified security issue:**
 ```json
 {truth_finding}
- ```
+```
 
 ## **Entire report of findings from the junior auditor:**
 ```json

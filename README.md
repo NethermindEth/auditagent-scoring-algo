@@ -14,9 +14,9 @@ Minimal standalone Python CLI to run the same evaluation pipeline as the AuditAg
 - Targets an external data root with folders like: `auditagent/`, `baseline/`, `repos/`, `source_of_truth/`
 - Reads scan results from `<data_root>/<scan_source>/<repo>_results.json` (e.g., `auditagent/` or `baseline/`)
 - Reads source-of-truth findings from `<data_root>/source_of_truth/<repo>.json`
-- Evaluates per-batch with the same prompt, running `ITERATIONS` per batch (default: 3 via `config.py`)
+- Evaluates per-batch with the same prompt, running 3 iterations per batch (hardcoded in `settings.py`)
 - Post-processes partial matches and appends false positives
-- Writes results to `<output_root>/<repo>_results.json` (configured in `config.py`)
+- Writes results to `<output_root>/<repo>_results.json` (configured in `settings.py`)
 
 ### Prerequisites
 
@@ -29,9 +29,7 @@ Minimal standalone Python CLI to run the same evaluation pipeline as the AuditAg
 ### Install
 
 ```bash
-python -m venv .venv
-. .venv/Scripts/activate  # Windows Git Bash / PowerShell equivalent
-pip install -e .  # or: pip install -e .[dev]
+uv sync  # install runtime + dev dependencies
 ```
 
 ### Configuration
@@ -40,7 +38,6 @@ All runtime options are set in `scoring_algo/settings.py` (env prefix `SCORING_`
 
 - `REPOS_TO_RUN`: list of repo names (without `.json`) to evaluate
 - `MODEL`: OpenAI model name (must be in `SUPPORTED_MODELS`)
-- `ITERATIONS`: number of LLM runs per batch prompt (default: 3)
 - `BATCH_SIZE`: number of scan findings per batch (default: 10)
 - `SCAN_SOURCE`: which folder under data-root to read scan results from (`auditagent` or `baseline`)
 - `DATA_ROOT`: base directory containing `auditagent/`, `baseline/`, `repos/`, `source_of_truth/`
@@ -50,37 +47,27 @@ All runtime options are set in `scoring_algo/settings.py` (env prefix `SCORING_`
 Notes on paths:
 - If `DATA_ROOT` or `OUTPUT_ROOT` are relative, they resolve relative to the `scoring_algo/` package directory.
 
-### Run (pipeline)
+### Run
 
-Subcommands are available via Typer CLI:
+Subcommands are available via the Typer CLI:
 
 ```bash
+# Run the evaluation pipeline
 scoring-algo evaluate [--no-telemetry] [--log-level INFO]
+
+# Generate a Markdown report from existing benchmark results
+scoring-algo report --benchmarks ./benchmarks --scan-root ./data/baseline --out REPORT.md
 ```
 
-The runner validates the presence of: `<DATA_ROOT>/<SCAN_SOURCE>/<repo>_results.json` and `<DATA_ROOT>/source_of_truth/<repo>.json`. Results are written to `<OUTPUT_ROOT>/<repo>_results.json`.
+The `evaluate` command validates the presence of `<DATA_ROOT>/<SCAN_SOURCE>/<repo>_results.json` and `<DATA_ROOT>/source_of_truth/<repo>.json`. Results are written to `<OUTPUT_ROOT>/<repo>_results.json`.
 
-### Run (report only)
-
-Generate a Markdown report from existing results in `OUTPUT_ROOT` (or any benchmarks folder) without re-running evaluation. When `--out` is relative, it is written inside `--benchmarks`:
-
-```bash
-scoring-algo-report --benchmarks ./benchmarks --scan-root ./data/baseline --out REPORT.md
-```
-
-Module alternative:
-
-```bash
-python -m scoring_algo.generate_report --benchmarks ./benchmarks --scan-root ./data/baseline --out REPORT.md
-```
+The `report` command generates a Markdown report from existing results without re-running evaluation. When `--out` is relative, it is written inside `--benchmarks`.
 
 ### Quickstart
 
 ```bash
-python -m venv .venv
-. .venv/Scripts/activate
-pip install -e .
-setx OPENAI_API_KEY YOUR_KEY_HERE  # Windows permanent env; or set in .env
+uv sync
+cp .env.example .env  # then fill in your OPENAI_API_KEY
 scoring-algo evaluate --no-telemetry --log-level INFO
 scoring-algo report --benchmarks ./benchmarks --scan-root ./data/baseline --out REPORT.md
 ```
@@ -92,7 +79,7 @@ For each truth finding (`source_of_truth/<repo>.json`):
 1) The junior report is split into batches of `BATCH_SIZE` in original order.
 2) For each batch:
    - The prompt includes the single truth finding and the current batch of junior findings.
-   - The LLM is called `ITERATIONS` times and responses are aggregated by majority:
+   - The LLM is called 3 times and responses are aggregated by majority:
      - 2-of-3 exact matches → select a matching response
      - 2-of-3 partial matches → select a partial response
      - 2-of-3 false (neither match nor partial) → select a false response

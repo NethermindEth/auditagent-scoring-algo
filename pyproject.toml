@@ -3,6 +3,7 @@ name = "scoring-algo"
 version = "0.1.0"
 description = "Scoring algorithm to evaluate the accuracy of AI generated findings"
 readme = "README.md"
+license = "Apache-2.0"
 requires-python = ">=3.12"
 dependencies = [
     "openai==1.101.0",
@@ -16,53 +17,59 @@ dependencies = [
     "pydantic-settings==2.6.1",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
-    "black==25.1.0",
-    "isort==6.0.1",
-    "flake8==7.3.0",
-    "mypy==1.16.1",
-    "pre-commit==4.2.0",
-    "pydantic[mypy]==2.11.7",
+    "mypy>=1.16.1",
+    "pre-commit>=4.2.0",
+    "pydantic[mypy]>=2.11.7",
+    "ruff>=0.15.1",
 ]
 
 [project.scripts]
 scoring-algo = "scoring_algo.cli:app"
-scoring-algo-report = "scoring_algo.generate_report:main"
 
 [build-system]
-requires = ["setuptools>=64", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.setuptools.packages.find]
-include = ["scoring_algo*"]
-exclude = ["data*", "benchmarks*", "tests*"]
+[tool.hatch.build.targets.wheel]
+packages = ["scoring_algo"]
 
-[tool.black]
+[tool.ruff]
 line-length = 100
-exclude = ".git,__pycache__,env,venv,dist,build"
+target-version = "py312"
+extend-exclude = [".git", "__pycache__", "env", "venv", "build", "dist", "tests"]
 
-[tool.flake8]
-max-line-length = 100
-exclude = ".git,__pycache__,env,venv,dist,build"
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4", "ARG"]
+ignore = [
+    "E501",   # line-too-long
+    "B008",   # function-call-in-default-argument (typer pattern)
+    "B904",   # raise-without-from-inside-except
+    "SIM105", # contextlib.suppress - explicit try/except often clearer
+]
 
-[tool.pylint]
-max-line-length = 100
-disable = "C0114,W1203,C0116,C0115"
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 
-[tool.isort]
-profile = "black"
-line_length = 100
-filter_files = true
-skip = "build"
-
 [tool.mypy]
 python_version = "3.12"
-files = "scoring_algo/"
-exclude = ".git,__pycache__,env,venv,dist,build/"
+files = "scoring_algo"
+exclude = '''(?x)(
+    ^\.git[\\/]|
+    ^__pycache__[\\/]|
+    ^\.venv[\\/]|
+    ^venv[\\/]|
+    ^dist[\\/]|
+    ^build[\\/]|
+    ^tests[\\/]
+)'''
 ignore_missing_imports = true
-plugins = ['pydantic.mypy']
+warn_unused_configs = true
+no_implicit_optional = false
+
+

@@ -1,7 +1,10 @@
 from __future__ import annotations
 
-from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Fixed at 3: majority voting logic in iteration.py and early-exit
+# optimisation in batching.py both assume exactly 3 iterations.
+ITERATIONS: int = 3
 
 
 class Settings(BaseSettings):
@@ -19,7 +22,6 @@ class Settings(BaseSettings):
         "code4rena_superposition_2025_01",
     ]
     MODEL: str = "o4-mini"
-    ITERATIONS: int = 3
     BATCH_SIZE: int = 10
     SCAN_SOURCE: str = "baseline"
     DATA_ROOT: str = "../data"
@@ -34,9 +36,9 @@ class Settings(BaseSettings):
             "gpt-5-nano-2025-08-07",
         ],
     }
-    LANGFUSE_HOST: str | None = Field(default=None, env="LANGFUSE_HOST")
-    LANGFUSE_PUBLIC_KEY: str | None = Field(default=None, env="LANGFUSE_PUBLIC_KEY")
-    LANGFUSE_SECRET_KEY: str | None = Field(default=None, env="LANGFUSE_SECRET_KEY")
-    LANGFUSE_USER_ID: str | None = Field(default=None, env="LANGFUSE_USER_ID")
+    LANGFUSE_HOST: str | None = None
+    LANGFUSE_PUBLIC_KEY: str | None = None
+    LANGFUSE_SECRET_KEY: str | None = None
+    LANGFUSE_USER_ID: str | None = None
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")

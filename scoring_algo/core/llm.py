@@ -2,11 +2,9 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Optional
 
 import tiktoken
 from langfuse.openai import AsyncOpenAI
-from langfuse.types import List
 
 from ..settings import Settings
 from .telemetry import observe, update_generation
@@ -16,61 +14,45 @@ from .types import Finding
 class LLMClient:
     def __init__(self, model: str):
         self.model = model
-        self._api_key: Optional[str] = None
-        self._base_url: Optional[str] = None
 
-        if not self.is_model_supported(model):
+        settings = Settings()
+        if not any(model in models for models in settings.SUPPORTED_MODELS.values()):
             raise ValueError(f"Unsupported model {model}")
 
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise RuntimeError("OPENAI_API_KEY is not set")
-        self._api_key = api_key
 
         base_url = os.getenv("OPENAI_BASE_URL")
-        if base_url:
-            self._base_url = base_url
+        self._use_base_url = bool(base_url)
 
-    @classmethod
-    def is_model_supported(cls, model: str) -> bool:
-        """Check if a model is supported by any provider."""
-        cfg = Settings()
-        for models in cfg.SUPPORTED_MODELS.values():
-            if model in models:
-                return True
-        return False
+        kwargs: dict[str, str] = {"api_key": api_key}
+        if base_url:
+            kwargs["base_url"] = base_url
+        self._client = AsyncOpenAI(**kwargs)
 
     @observe(name="[LLM] Send prompt to LLM (async)", as_type="generation")
-    async def generate_async(self, prompt: str) -> Optional[Finding]:
+    async def generate_async(self, prompt: str) -> Finding | None:
         try:
             messages = _responses_input_from_text(prompt)
-            if self._base_url:
-                client = AsyncOpenAI(api_key=self._api_key, base_url=self._base_url)
+            if self._use_base_url:
+                response = await self._client.chat.completions.parse(
+                    model=self.model,
+                    messages=messages,
+                    response_format=Finding,
+                )
             else:
-                client = AsyncOpenAI(api_key=self._api_key)
-            try:
-                if self._base_url:
-                    response = await client.chat.completions.parse(
-                        model=self.model,
-                        messages=messages,
-                        response_format=Finding,
-                    )
-                else:
-                    response = await client.responses.parse(
-                        model=self.model,
-                        input=messages,
-                        text_format=Finding,
-                    )
-            finally:
-                try:
-                    await client.close()
-                except Exception:
-                    pass
+                response = await self._client.responses.parse(
+                    model=self.model,
+                    input=messages,
+                    text_format=Finding,
+                )
 
-            if self._base_url:
-                parsed_response: Optional[Finding] = getattr(response.choices[0].message, "parsed", None)
+            parsed_response: Finding | None
+            if self._use_base_url:
+                parsed_response = getattr(response.choices[0].message, "parsed", None)
             else:
-                parsed_response: Optional[Finding] = getattr(response, "output_parsed", None)
+                parsed_response = getattr(response, "output_parsed", None)
             input_text = _openai_messages_langfuse(messages)
             output_text = str(parsed_response)
             update_generation(
@@ -111,12 +93,12 @@ def count_tokens(text: str) -> int:
         ValidationError: If the text is not a string or if there's an encoding error.
     """
 
-    enc = tiktoken.get_encoding("cl100k_base")
+    enc = tiktoken.get_encoding("o200k_base")
     tokens = enc.encode(text)
     return len(tokens)
 
 
-def _openai_messages_langfuse(messages: List[dict]) -> str:
+def _openai_messages_langfuse(messages: list[dict]) -> str:
     parts: list[str] = []
     for message in messages:
         if isinstance(message, dict):

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import List
-
 from .types import Finding
 
 
@@ -11,7 +9,7 @@ class MatchType:
     EXACT = 2
 
 
-def pick_type(responses: List[Finding], match_type: int) -> Finding:
+def pick_type(responses: list[Finding], match_type: int) -> Finding:
     if match_type == MatchType.FALSE:
         for r in responses:
             if not r.is_match and not r.is_partial_match:
@@ -27,7 +25,7 @@ def pick_type(responses: List[Finding], match_type: int) -> Finding:
     return responses[0]
 
 
-def get_best_response(responses: List[Finding], num_iterations: int) -> Finding:
+def get_best_response(responses: list[Finding], num_iterations: int) -> Finding:
     partial_matches = sum(1 for r in responses if r.is_partial_match)
     exact_matches = sum(1 for r in responses if r.is_match)
     false_matches = num_iterations - partial_matches - exact_matches

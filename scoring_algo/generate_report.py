@@ -1,13 +1,9 @@
 # flake8: noqa E501
-# generate_report.py
-# Usage examples:
-#   python generate_report.py --benchmarks ../external-benchmark/benchmarks --out REPORT.md
-#   python generate_report.py --benchmarks ./benchmarks --scan-root ../external-benchmark/auditagent --out REPORT.md
+# generate_report.py — called via ``scoring-algo report``
 # Notes:
 # - If --scan-root is provided and <scan-root>/<repo>_results.json exists, we will use its length for scanFindings.
 # - If not provided (or file missing), scanFindings is derived as matched + partial + fp + qaFindings so that adjustedScanFindings = matched + partial + fp (same effect as the UI).
 
-import argparse
 import json
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -59,26 +55,31 @@ def _parse_repo_name(file_path: Path) -> str:
 def _calc_confusion_metrics(
     actual_findings: int, scan_findings: int, matched: int, partial: int, qa_findings: int
 ) -> Tuple[int, int, float, float, float, float, float, float]:
-    # Base metrics ("real" F1):
-    # - Do NOT exclude QA from scan results (use raw scan_findings)
-    # - Do NOT count partial as TP (and also not as FP)
-    raw_scan = max(0, scan_findings)
+    # Both metrics exclude QA (Info / Best Practices) from the scan total.
+    adjusted_scan = max(0, scan_findings - qa_findings)
 
+    # Base / strict metrics — partials count as FP.
     true_positives = matched
+    false_positives = max(0, adjusted_scan - matched)
     false_negatives = max(0, actual_findings - true_positives)
-    false_positives = max(0, raw_scan - matched - partial)
 
-    precision = (true_positives / raw_scan) if raw_scan > 0 else 0.0
+    precision = (
+        (true_positives / (true_positives + false_positives))
+        if (true_positives + false_positives) > 0
+        else 0.0
+    )
     recall = (true_positives / actual_findings) if actual_findings > 0 else 0.0
     f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
 
-    # With partial metrics:
-    # - Include partial in TP
-    # - Exclude QA from scan results
-    adjusted_scan = max(0, scan_findings - qa_findings)
+    # With-partial metrics — partials count as TP.
     tp_with_partial = matched + partial
-    _fn_with_partial = max(0, actual_findings - tp_with_partial)  # noqa F841
-    precision_with_partial = (tp_with_partial / adjusted_scan) if adjusted_scan > 0 else 0.0
+    fp_with_partial = max(0, adjusted_scan - tp_with_partial)
+
+    precision_with_partial = (
+        (tp_with_partial / (tp_with_partial + fp_with_partial))
+        if (tp_with_partial + fp_with_partial) > 0
+        else 0.0
+    )
     recall_with_partial = (tp_with_partial / actual_findings) if actual_findings > 0 else 0.0
     f1_with_partial = (
         2
@@ -377,31 +378,3 @@ def generate_markdown_report(benchmarks: Path, out: Path, scan_root: Optional[Pa
     final_out = out if out.is_absolute() else (bench_dir / out)
     final_out.write_text(md, encoding="utf-8")
     print(f"Wrote report to {final_out}")
-
-
-def main():
-    parser = argparse.ArgumentParser(
-        description="Generate Markdown benchmark report from evaluated results."
-    )
-    parser.add_argument(
-        "--benchmarks",
-        type=Path,
-        required=True,
-        help="Path to benchmarks folder with *_results.json files",
-    )
-    parser.add_argument(
-        "--scan-root",
-        type=Path,
-        default=None,
-        help="Optional path to original scan results (e.g., auditagent/ or baseline/)",
-    )
-    parser.add_argument(
-        "--out", type=Path, default=Path("REPORT.md"), help="Output Markdown file path"
-    )
-    args = parser.parse_args()
-
-    generate_markdown_report(args.benchmarks, args.out, args.scan_root)
-
-
-if __name__ == "__main__":
-    main()
