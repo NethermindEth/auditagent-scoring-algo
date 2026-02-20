@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# Fixed at 3: majority voting logic in iteration.py and early-exit
+# optimisation in batching.py both assume exactly 3 iterations.
+ITERATIONS: int = 3
+
 
 class Settings(BaseSettings):
     REPOS_TO_RUN: list[str] = [
@@ -18,7 +22,6 @@ class Settings(BaseSettings):
         "code4rena_superposition_2025_01",
     ]
     MODEL: str = "o4-mini"
-    ITERATIONS: int = 3
     BATCH_SIZE: int = 10
     SCAN_SOURCE: str = "baseline"
     DATA_ROOT: str = "../data"

@@ -27,7 +27,6 @@ dev = [
 
 [project.scripts]
 scoring-algo = "scoring_algo.cli:app"
-scoring-algo-report = "scoring_algo.generate_report:main"
 
 [build-system]
 requires = ["hatchling"]

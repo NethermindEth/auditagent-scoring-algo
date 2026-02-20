@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 
-from langfuse import observe
 from rich import print
 from rich.progress import BarColumn, Progress, TimeElapsedColumn, TimeRemainingColumn
 
@@ -14,6 +13,7 @@ from .storage import (
     read_truth_data,
     store_evaluation_result,
 )
+from .telemetry import observe
 from .types import EvaluatedFinding, Finding, WorkingResult
 
 
@@ -60,7 +60,7 @@ def run_evaluation(
         task = progress.add_task(f"Evaluating {repo_name} ({len(truth)} issues)", total=len(truth))
 
         async def _process_all():
-            out: list[tuple[int, EvaluatedFinding | None, Finding | None]] = []
+            out: list[tuple[int, int, Finding | None]] = []
             for idx, finding in enumerate(truth):
                 content = await process_in_batches(
                     all_findings=working_results,
@@ -72,13 +72,26 @@ def run_evaluation(
                     debug_prompt=debug_prompt,
                     output_root=output_root,
                 )
-                out.append((idx, None, content))
+
+                # Resolve working index → original scan index BEFORE any pop
+                original_index = -1
+                if content:
+                    working_index = content.index_of_finding_from_junior_auditor
+                    if 0 <= working_index < len(working_results):
+                        original_index = working_results[working_index].Index
+
+                    # Remove matched finding NOW to enforce one-to-one mapping
+                    # for subsequent truth findings
+                    if content.is_match and 0 <= working_index < len(working_results):
+                        working_results.pop(working_index)
+
+                out.append((idx, original_index, content))
                 progress.update(task, advance=1)
             return out
 
         # Run the whole evaluation in one event loop to avoid loop churn
         results_async = asyncio.run(_process_all())
-        for idx, _, content in results_async:
+        for idx, original_index, content in results_async:
             if not content:
                 continue
 
@@ -87,11 +100,6 @@ def run_evaluation(
             truth_severity = getattr(truth_item.Severity, "value", truth_item.Severity)
             if content.severity_from_truth != truth_severity:
                 content.severity_from_truth = truth_severity
-
-            working_index = content.index_of_finding_from_junior_auditor
-            original_index = -1
-            if 0 <= working_index < len(working_results):
-                original_index = working_results[working_index].Index
 
             evaluated.append(
                 EvaluatedFinding(
@@ -109,12 +117,6 @@ def run_evaluation(
                     ),
                 )
             )
-
-            # remove matched finding from working set to prevent reuse
-            if content.is_match and 0 <= working_index < len(working_results):
-                working_results.pop(working_index)
-
-            # progress already updated inside _process_all
 
     processed = post_process_partial_matches(evaluated)
 
@@ -165,7 +167,7 @@ def post_process_partial_matches(results: list[EvaluatedFinding]) -> list[Evalua
             if idx in true_indices:
                 f = EvaluatedFinding(
                     **{
-                        **f.__dict__,
+                        **f.model_dump(),
                         "is_partial_match": False,
                         "explanation": f.explanation
                         + " (Already counted as TP elsewhere, so not counted as partial here.)",
@@ -174,7 +176,7 @@ def post_process_partial_matches(results: list[EvaluatedFinding]) -> list[Evalua
             elif idx in partial_indices:
                 f = EvaluatedFinding(
                     **{
-                        **f.__dict__,
+                        **f.model_dump(),
                         "is_partial_match": False,
                         "explanation": f.explanation
                         + " (Already counted as partial elsewhere, so not counted here.)",

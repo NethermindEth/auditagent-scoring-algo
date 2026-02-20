@@ -44,7 +44,7 @@ Pre-commit hooks run ruff (lint + format) and mypy automatically on commit.
 
 ### Entry Points
 - `scoring_algo/cli.py` — Typer CLI with `evaluate` and `report` subcommands
-- `scoring_algo/generate_report.py` — Standalone report generator (also registered as `scoring-algo-report`)
+- `scoring_algo/generate_report.py` — Report generator (called via `scoring-algo report`)
 
 ### Core Pipeline (`scoring_algo/core/`)
 
@@ -52,7 +52,7 @@ Pre-commit hooks run ruff (lint + format) and mypy automatically on commit.
 1. **Load data** (`storage.py`) — reads ground truth from `data/source_of_truth/<repo>.json` and scan results from `data/<scan_source>/<repo>_results.json`; normalizes diverse JSON formats into `Vulnerability` Pydantic models
 2. **Batch** (`batching.py`) — splits scan findings into batches of `BATCH_SIZE` (default 10)
 3. **LLM compare** (`llm.py`) — for each truth finding × batch, sends prompt to OpenAI API via `AsyncOpenAI` with structured output parsing; returns `Finding` objects
-4. **Consensus** (`iteration.py`) — runs `ITERATIONS` (default 3) LLM calls per comparison; majority vote determines result (2-of-3 wins; 1-1-1 tie → partial match)
+4. **Consensus** (`iteration.py`) — runs 3 LLM calls per comparison; majority vote determines result (2-of-3 wins; 1-1-1 tie → partial match)
 5. **Match resolution** (`evaluate.py`) — iterates batches until exact match found; removes matched findings from pool (one-to-one mapping); falls back to best partial
 6. **Post-process** — suppresses duplicate partials, removes partials conflicting with exact matches, marks unmatched non-QA findings as false positives
 
@@ -75,10 +75,10 @@ Results are written to `benchmarks/<repo>_results.json`.
 
 ## Configuration
 
-All runtime settings are in `scoring_algo/settings.py` via env vars (prefix `SCORING_`):
+All runtime settings are in `scoring_algo/settings.py` via env vars (matched by field name, no prefix):
 - `REPOS_TO_RUN` — repos to evaluate (edit defaults in `settings.py`)
 - `MODEL` — OpenAI model (must be in `SUPPORTED_MODELS`)
-- `ITERATIONS`, `BATCH_SIZE` — consensus and batching parameters
+- `BATCH_SIZE` — number of scan findings per batch (default 10)
 - `SCAN_SOURCE` — folder under data root (`auditagent` or `baseline`)
 - `DATA_ROOT`, `OUTPUT_ROOT` — paths (relative paths resolve from `scoring_algo/` package dir)
 

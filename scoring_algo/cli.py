@@ -9,7 +9,7 @@ from .core.logging_config import configure_logging
 from .core.storage import get_scan_path, get_truth_path
 from .core.telemetry import set_telemetry
 from .generate_report import generate_markdown_report
-from .settings import Settings
+from .settings import ITERATIONS, Settings
 
 app = typer.Typer(help="Scoring Algo CLI")
 
@@ -38,7 +38,7 @@ def evaluate(
     def run_one(name: str):
         name = name.replace(".json", "")
         print(
-            f"[bold green]Running evaluation[/bold green] repo={name} model={cfg.MODEL} iter={cfg.ITERATIONS} batch={cfg.BATCH_SIZE}"  # noqa E501
+            f"[bold green]Running evaluation[/bold green] repo={name} model={cfg.MODEL} iter={ITERATIONS} batch={cfg.BATCH_SIZE}"  # noqa E501
         )
         scan_path = get_scan_path(name, data_root, cfg.SCAN_SOURCE)
         truth_path = get_truth_path(name, data_root)
@@ -53,7 +53,7 @@ def evaluate(
             scan_source=cfg.SCAN_SOURCE,
             output_root=output_root,
             model=cfg.MODEL,
-            iterations=cfg.ITERATIONS,
+            iterations=ITERATIONS,
             batch_size=cfg.BATCH_SIZE,
             debug_prompt=cfg.DEBUG_PROMPT,
         )
