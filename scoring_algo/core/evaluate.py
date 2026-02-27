@@ -3,8 +3,8 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 
-from rich import print
-from rich.progress import BarColumn, Progress, TimeElapsedColumn, TimeRemainingColumn
+from rich.console import Console
+from rich.table import Table
 
 from .batching import process_in_batches
 from .storage import (
@@ -14,7 +14,9 @@ from .storage import (
     store_evaluation_result,
 )
 from .telemetry import observe
-from .types import EvaluatedFinding, Finding, WorkingResult
+from .types import EvaluatedFinding, WorkingResult
+
+console = Console()
 
 
 @observe(name="[ScoringAlgo] Run scoring algo")
@@ -31,7 +33,7 @@ def run_evaluation(
     truth = read_truth_data(repo_name, data_root)
     results = read_scan_results(repo_name, data_root, scan_source)
 
-    print(f"[cyan]Loaded[/cyan] truth={len(truth)} findings; junior report={len(results)} findings")
+    console.print(f"[cyan]Loaded[/cyan] truth={len(truth)} findings; scan={len(results)} findings")
 
     # working copy with original index mapping
     working_results: list[WorkingResult] = []
@@ -47,61 +49,62 @@ def run_evaluation(
             )
         )
 
-    evaluated: list[EvaluatedFinding] = []
-    with Progress(
-        "{task.description}",
-        BarColumn(),
-        "[progress.percentage]{task.percentage:>3.0f}%",
-        "|",
-        TimeElapsedColumn(),
-        "<",
-        TimeRemainingColumn(),
-    ) as progress:
-        task = progress.add_task(f"Evaluating {repo_name} ({len(truth)} issues)", total=len(truth))
+    total = len(truth)
 
-        async def _process_all():
-            out: list[tuple[int, int, Finding | None]] = []
-            for idx, finding in enumerate(truth):
-                content = await process_in_batches(
-                    all_findings=working_results,
-                    repo_name=repo_name,
-                    truth_finding=finding,
-                    model=model,
-                    iterations=iterations,
-                    batch_size=batch_size,
-                    debug_prompt=debug_prompt,
-                    output_root=output_root,
-                )
+    async def _process_all() -> list[EvaluatedFinding]:
+        out: list[EvaluatedFinding] = []
+        for idx, finding in enumerate(truth):
+            status_msg = f"Evaluating finding {idx + 1}/{total}…"
+            console.print(f"  [dim]{status_msg}[/dim]", end="\r")
 
-                # Resolve working index → original scan index BEFORE any pop
-                original_index = -1
-                if content:
-                    working_index = content.index_of_finding_from_junior_auditor
-                    if 0 <= working_index < len(working_results):
-                        original_index = working_results[working_index].Index
+            content = await process_in_batches(
+                all_findings=working_results,
+                repo_name=repo_name,
+                truth_finding=finding,
+                model=model,
+                iterations=iterations,
+                batch_size=batch_size,
+                debug_prompt=debug_prompt,
+                output_root=output_root,
+            )
 
-                    # Remove matched finding NOW to enforce one-to-one mapping
-                    # for subsequent truth findings
-                    if content.is_match and 0 <= working_index < len(working_results):
-                        working_results.pop(working_index)
+            # Resolve working index → original scan index BEFORE any pop
+            original_index = -1
+            if content:
+                working_index = content.index_of_finding_from_junior_auditor
+                if 0 <= working_index < len(working_results):
+                    original_index = working_results[working_index].Index
 
-                out.append((idx, original_index, content))
-                progress.update(task, advance=1)
-            return out
+                # Remove matched finding NOW to enforce one-to-one mapping
+                if content.is_match and 0 <= working_index < len(working_results):
+                    working_results.pop(working_index)
 
-        # Run the whole evaluation in one event loop to avoid loop churn
-        results_async = asyncio.run(_process_all())
-        for idx, original_index, content in results_async:
+            # Print result line (overwrites the status message)
+            truth_title = _truncate(finding.Issue, 60)
+            prefix = f"  [dim][{idx + 1}/{total}][/dim] {truth_title}"
             if not content:
+                console.print(f"{prefix} → [yellow]NO RESULT[/yellow]")
                 continue
 
-            # Enforce severity from truth (string form)
-            truth_item = truth[idx]
-            truth_severity = getattr(truth_item.Severity, "value", truth_item.Severity)
+            # Enforce severity from truth
+            truth_severity = str(getattr(finding.Severity, "value", finding.Severity))
             if content.severity_from_truth != truth_severity:
                 content.severity_from_truth = truth_severity
 
-            evaluated.append(
+            if content.is_match:
+                tag = "[bold green]TP[/bold green]"
+            elif content.is_partial_match:
+                tag = "[bold yellow]PARTIAL[/bold yellow]"
+            else:
+                tag = "[bold red]FN[/bold red]"
+            matched_info = ""
+            if (content.is_match or content.is_partial_match) and 0 <= original_index < len(
+                results
+            ):
+                matched_info = f" [dim]↔ scan #{original_index + 1}[/dim]"
+            console.print(f"{prefix} → {tag}{matched_info}")
+
+            out.append(
                 EvaluatedFinding(
                     is_match=content.is_match,
                     is_partial_match=content.is_partial_match,
@@ -117,6 +120,9 @@ def run_evaluation(
                     ),
                 )
             )
+        return out
+
+    evaluated = asyncio.run(_process_all())
 
     processed = post_process_partial_matches(evaluated)
 
@@ -145,9 +151,36 @@ def run_evaluation(
             )
         )
 
+    # Log false positives
+    fp_count = sum(1 for ef in processed if ef.is_fp)
+    if fp_count:
+        console.print(f"\n  [red]False positives ({fp_count}):[/red]")
+        for ef in processed:
+            if ef.is_fp:
+                idx = ef.index_of_finding_from_junior_auditor
+                desc = _truncate(ef.finding_description_from_junior_auditor, 70)
+                sev = ef.severity_from_junior_auditor
+                console.print(f"    scan #{idx + 1} [{sev}] {desc}")
+
+    # Summary table
+    tp = sum(1 for ef in processed if ef.is_match)
+    partial = sum(1 for ef in processed if ef.is_partial_match)
+    fn = len(truth) - tp - partial
+    console.print()
+    table = Table(title=f"Results — {repo_name}", show_lines=False, pad_edge=False)
+    table.add_column("Metric", style="bold")
+    table.add_column("Count", justify="right")
+    table.add_row("Truth findings", str(len(truth)))
+    table.add_row("Scan findings", str(len(results)))
+    table.add_row("[green]True Positives (TP)[/green]", f"[green]{tp}[/green]")
+    table.add_row("[yellow]Partial matches[/yellow]", f"[yellow]{partial}[/yellow]")
+    table.add_row("[red]False Negatives (FN)[/red]", f"[red]{fn}[/red]")
+    table.add_row("[red]False Positives (FP)[/red]", f"[red]{fp_count}[/red]")
+    console.print(table)
+
     store_evaluation_result(processed, repo_name, output_root)
     out_path = get_evaluation_path(repo_name, output_root)
-    print(f"[green]Saved results to[/green] {out_path}")
+    console.print(f"\n[green]Saved results to[/green] {out_path}")
 
 
 def post_process_partial_matches(results: list[EvaluatedFinding]) -> list[EvaluatedFinding]:
@@ -186,3 +219,7 @@ def post_process_partial_matches(results: list[EvaluatedFinding]) -> list[Evalua
                 partial_indices.add(idx)
         processed.append(f)
     return processed
+
+
+def _truncate(text: str, max_len: int) -> str:
+    return text if len(text) <= max_len else text[: max_len - 1] + "…"

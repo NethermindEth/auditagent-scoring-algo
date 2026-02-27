@@ -4,7 +4,7 @@ import json
 import os
 
 import tiktoken
-from langfuse.openai import AsyncOpenAI
+from openai import AsyncOpenAI
 
 from ..settings import Settings
 from .telemetry import observe, update_generation
@@ -23,8 +23,14 @@ class LLMClient:
         if not api_key:
             raise RuntimeError("OPENAI_API_KEY is not set")
 
-        base_url = os.getenv("OPENAI_BASE_URL")
-        self._use_base_url = bool(base_url)
+        base_url = os.getenv("OPENAI_BASE_URL") or None
+        self._use_base_url = base_url is not None
+
+        # Remove empty OPENAI_BASE_URL from env so the OpenAI SDK doesn't
+        # pick it up internally (dotenv loaders set it to "" which the SDK
+        # treats as a real value instead of falling back to the default URL).
+        if not self._use_base_url and "OPENAI_BASE_URL" in os.environ:
+            del os.environ["OPENAI_BASE_URL"]
 
         kwargs: dict[str, str] = {"api_key": api_key}
         if base_url:

@@ -7,3 +7,6 @@ def configure_logging(level: str = "INFO") -> None:
         level=numeric,
         format="%(asctime)s %(levelname)s %(name)s - %(message)s",
     )
+    # Suppress noisy HTTP-layer loggers (one line per request otherwise)
+    for name in ("httpx", "httpcore", "openai"):
+        logging.getLogger(name).setLevel(logging.WARNING)
