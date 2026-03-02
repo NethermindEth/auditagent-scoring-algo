@@ -38,6 +38,7 @@ ENV/
 htmlcov/
 .hypothesis/
 .mypy_cache/
+scripts/
 
 # Environment variables
 .env*
