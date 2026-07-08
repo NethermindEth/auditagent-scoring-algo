@@ -32,6 +32,14 @@ Minimal standalone Python CLI to run the same evaluation pipeline as the AuditAg
 uv sync  # install runtime + dev dependencies
 ```
 
+### Tests
+
+```bash
+uv run pytest        # run the test suite
+```
+
+The suite mocks the LLM judge, so it runs fully offline and needs no `OPENAI_API_KEY`.
+
 ### Configuration
 
 All runtime options are set in `scoring_algo/settings.py` (env prefix `SCORING_`):
