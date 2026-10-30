@@ -1,32 +1,26 @@
-# Hook environments use the same Python as .python-version.
-default_language_version:
-  python: python3.14
-
+# Hooks run the ruff and mypy pinned in uv.lock, the same ones CI uses, so there
+# are no separate hook versions to keep in sync.
 repos:
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.2
+  - repo: local
     hooks:
       # Lint + autofix (includes isort via rule "I")
       - id: ruff
-        args: [--config=pyproject.toml, --fix]
+        name: ruff
+        entry: uv run --locked ruff check --fix --force-exclude
+        language: system
+        types_or: [python, pyi]
 
       # Formatter (Black-like)
       - id: ruff-format
-        args: [--config=pyproject.toml]
+        name: ruff format
+        entry: uv run --locked ruff format --force-exclude
+        language: system
+        types_or: [python, pyi]
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.4.0
-    hooks:
+      # Same command as CI: checks the whole package against the project env.
       - id: mypy
-        # Same scope as CI (`mypy scoring_algo/`); tests are not type-checked.
+        name: mypy
+        entry: uv run --locked mypy scoring_algo/
+        language: system
         files: ^scoring_algo/
-        additional_dependencies:
-          [
-            types-requests,
-            types-PyYAML,
-            types-setuptools,
-            types-python-dateutil,
-            "pydantic[mypy]==2.14.1",
-            types-toml,
-          ]
-        args: [--config-file=pyproject.toml]
+        pass_filenames: false

@@ -2,26 +2,46 @@
 # Scans the repository for secrets using TruffleHog.
 #
 # SCAN_MODE selects what gets scanned:
-#   filesystem  the working tree only — "is there a secret in the code now?".
-#               Used on push/PR. Because this repo squash-merges, the PR head
-#               tree is exactly what lands in history, so this is a complete
-#               gate for anything *new*. Works on a shallow clone.
-#   git         the full commit history — "was a secret ever committed?".
-#               Deleting a secret in a later commit does not remove it from
-#               git, so only this mode finds already-leaked credentials that
-#               still need rotating. Requires a full clone (fetch-depth: 0).
+#   git         commits. With BASE_SHA and HEAD_SHA set, only the commits in
+#               BASE_SHA..HEAD_SHA (push/PR): every commit is checked, so a
+#               secret added in one commit and removed in the next is still
+#               caught. Without them, the full history: deleting a secret does
+#               not remove it from git, so this finds already-leaked credentials
+#               that still need rotating. Requires a full clone (fetch-depth: 0).
+#   filesystem  every file under the current directory, including untracked and
+#               gitignored ones. Used by the action's canary self-test.
 set -euo pipefail
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
 CYAN='\033[0;36m'; BOLD='\033[1m'; DIM='\033[2m'; NC='\033[0m'
 
 REPO_ROOT=$(git rev-parse --show-toplevel)
-SCAN_MODE="${SCAN_MODE:-filesystem}"
+SCAN_MODE="${SCAN_MODE:-git}"
+BASE_SHA="${BASE_SHA:-}"
+HEAD_SHA="${HEAD_SHA:-}"
+
+# A push that creates a branch reports an all-zero "before" SHA, and a force
+# push reports one that may no longer exist. Both fall back to the full history
+# rather than scanning nothing.
+if [[ -n "$BASE_SHA" ]] && ! git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
+  echo -e "  ${YELLOW}⚠${NC}  Base ${BASE_SHA} not found, scanning full history instead" >&2
+  BASE_SHA=""
+fi
 
 case "$SCAN_MODE" in
-  filesystem) SCAN_TARGET=(filesystem .);                     SCAN_LABEL="all files in the working tree" ;;
-  git)        SCAN_TARGET=(git "file://$REPO_ROOT");          SCAN_LABEL="full commit history" ;;
-  *)          echo "SCAN_MODE must be 'filesystem' or 'git', got '$SCAN_MODE'" >&2; exit 1 ;;
+  filesystem)
+    SCAN_TARGET=(filesystem .)
+    SCAN_LABEL="all files in the working tree" ;;
+  git)
+    SCAN_TARGET=(git "file://$REPO_ROOT")
+    if [[ -n "$BASE_SHA" && -n "$HEAD_SHA" ]]; then
+      SCAN_TARGET+=(--since-commit "$BASE_SHA" --branch "$HEAD_SHA")
+      SCAN_LABEL="commits ${BASE_SHA:0:7}..${HEAD_SHA:0:7}"
+    else
+      SCAN_LABEL="full commit history"
+    fi ;;
+  *)
+    echo "SCAN_MODE must be 'filesystem' or 'git', got '$SCAN_MODE'" >&2; exit 1 ;;
 esac
 
 echo -e "\n${CYAN}🔒 ${BOLD}Secret Detection${NC}  ${DIM}(TruffleHog · ${SCAN_MODE} scan)${NC}\n" >&2
@@ -31,7 +51,9 @@ RAW_OUTPUT=$(mktemp)
 SCAN_ERR=$(mktemp)
 trap 'rm -f "$EXCLUDE_FILE" "$RAW_OUTPUT" "$SCAN_ERR"' EXIT
 
-echo "\.git" > "$EXCLUDE_FILE"
+# --exclude-paths entries are unanchored regexes: a bare `\.git` would also
+# match `.github/` and `.gitignore` and silently skip every workflow file.
+echo '(^|/)\.git/' > "$EXCLUDE_FILE"
 [[ -f "$REPO_ROOT/.trufflehogignore" ]] && cat "$REPO_ROOT/.trufflehogignore" >> "$EXCLUDE_FILE"
 
 EXTRA_FLAGS=(--exclude-paths "$EXCLUDE_FILE")
@@ -72,7 +94,7 @@ fi
 COUNT=$(echo "$FINDINGS" | jq -s 'length')
 echo -e "  ${RED}✖${NC}  ${RED}${BOLD}${COUNT} secret(s) detected${NC}\n" >&2
 echo -e "${RED}┌──────────────────────────────────────────────────────┐${NC}" >&2
-if [[ "$SCAN_MODE" == "git" ]]; then
+if [[ "$SCAN_MODE" == "git" && -z "$HEAD_SHA" ]]; then
   echo -e "${RED}│           SECRETS FOUND IN COMMIT HISTORY            │${NC}" >&2
 else
   echo -e "${RED}│              PR BLOCKED — SECRETS FOUND              │${NC}" >&2

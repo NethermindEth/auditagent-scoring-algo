@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import os
 
 import tiktoken
@@ -37,7 +36,6 @@ class LLMClient:
     @observe(name="[LLM] Send prompt to LLM (async)", as_type="generation")
     async def generate_async(self, prompt: str) -> Finding | None:
         try:
-            messages = _responses_input_from_text(prompt)
             parsed_response: Finding | None
             if self._use_base_url:
                 completion = await self._client.chat.completions.parse(
@@ -45,15 +43,15 @@ class LLMClient:
                     messages=[{"role": "user", "content": prompt}],
                     response_format=Finding,
                 )
-                parsed_response = getattr(completion.choices[0].message, "parsed", None)
+                parsed_response = completion.choices[0].message.parsed
             else:
                 response = await self._client.responses.parse(
                     model=self.model,
                     input=[{"role": "user", "content": prompt}],
                     text_format=Finding,
                 )
-                parsed_response = getattr(response, "output_parsed", None)
-            input_text = _openai_messages_langfuse(messages)
+                parsed_response = response.output_parsed
+            input_text = prompt
             output_text = str(parsed_response)
             update_generation(
                 model=self.model,
@@ -68,15 +66,6 @@ class LLMClient:
         except Exception as e:
             print(f"[LLMPrompt] OpenAI API error (async) for {self.model}: {e}")
             return None
-
-
-def _responses_input_from_text(text: str) -> list[dict]:
-    return [
-        {
-            "role": "user",
-            "content": text,
-        }
-    ]
 
 
 def count_tokens(text: str) -> int:
@@ -96,28 +85,3 @@ def count_tokens(text: str) -> int:
     enc = tiktoken.get_encoding("o200k_base")
     tokens = enc.encode(text)
     return len(tokens)
-
-
-def _openai_messages_langfuse(messages: list[dict]) -> str:
-    parts: list[str] = []
-    for message in messages:
-        if isinstance(message, dict):
-            role = message.get("role", "user")
-            content = message.get("content", "")
-        else:
-            role = getattr(message, "role", "user")
-            content = getattr(message, "content", "")
-        if role == "assistant":
-            try:
-                if isinstance(content, (dict, list)):
-                    content_compact = json.dumps(content, ensure_ascii=False, separators=(",", ":"))
-                else:
-                    content_compact = json.dumps(
-                        json.loads(content), ensure_ascii=False, separators=(",", ":")
-                    )
-            except Exception:
-                content_compact = str(content).replace("\n", " ")
-
-            content = f"```json\n{content_compact}\n```"
-        parts.append(str(content))
-    return "\n\n".join(parts)

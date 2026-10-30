@@ -10,7 +10,6 @@ dependencies = [
     "python-dotenv==1.2.4",
     "typer==0.27.3",
     "rich==15.0.0",
-    "orjson==3.13.0",
     "langfuse==4.18.0",
     "pydantic==2.14.1",
     "tiktoken==0.14.0",

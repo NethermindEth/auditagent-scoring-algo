@@ -24,7 +24,7 @@ Minimal standalone Python CLI to run the same evaluation pipeline as the AuditAg
 - API keys as environment variables:
   - `OPENAI_API_KEY`
   - Optional (third-party APIs): `OPENAI_BASE_URL`
-  - Optional (telemetry): `LANGFUSE_HOST`, `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_USER_ID`
+  - Optional (telemetry): `LANGFUSE_BASE_URL`, `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_USER_ID` (`LANGFUSE_HOST` still works but is deprecated in favor of `LANGFUSE_BASE_URL`)
 
 ### Install
 

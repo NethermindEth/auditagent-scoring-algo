@@ -7,8 +7,7 @@ on:
     branches: [main]
     types: [opened, synchronize, reopened]
   # Weekly sweep of the full commit history, to catch secrets that were
-  # committed before this workflow existed — or that were deleted from the tree
-  # but are still readable in git objects. push/PR only scan the working tree.
+  # committed before this workflow existed. push/PR only scan their own commits.
   schedule:
     - cron: "0 3 * * 1" # Every Monday at 3 AM UTC
   # Same history sweep, on demand (e.g. after a suspected leak).
@@ -18,7 +17,7 @@ permissions:
   contents: read
 
 # Cancellation is limited to push/PR so a push can never cancel the scheduled
-# full-history sweep, the only run that scans git objects.
+# full-history sweep, the only run that scans every commit.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
@@ -29,30 +28,20 @@ jobs:
     runs-on: ubuntu-26.04
     timeout-minutes: 15
 
-    env:
-      # Scheduled and manual runs sweep the full history; push/PR scan the
-      # working tree. Because this repo squash-merges, the PR head tree is
-      # exactly what lands in history, so the tree scan is a complete gate for
-      # anything new.
-      HISTORY_SCAN: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
-
     steps:
-      # Two checkouts rather than a computed fetch-depth: in GitHub expressions
-      # the number 0 is falsy, so `cond && 0 || 1` silently always yields 1.
-      - name: Checkout repository (working tree)
-        if: env.HISTORY_SCAN != 'true'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Checkout repository (full history)
-        if: env.HISTORY_SCAN == 'true'
+      # Full clone: the git scan walks commits, and base/head must both exist.
+      - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0
 
+      # Each commit in the push or PR is scanned, not just the final tree, so
+      # a secret added and then removed within a PR is still caught (the repo
+      # allows rebase merges, and PR refs stay public either way). Schedule and
+      # workflow_dispatch pass no range and sweep the full history.
       - name: Run TruffleHog
         uses: ./.github/actions/trufflehog
         with:
-          mode: ${{ env.HISTORY_SCAN == 'true' && 'git' || 'filesystem' }}
+          base: ${{ github.event.pull_request.base.sha || github.event.before }}
+          head: ${{ github.event.pull_request.head.sha || github.event.after }}
