@@ -20,16 +20,17 @@ Minimal standalone Python CLI to run the same evaluation pipeline as the AuditAg
 
 ### Prerequisites
 
-- Python 3.12+ recommended
+- Python 3.12+ (3.14 recommended, see `.python-version`)
 - API keys as environment variables:
   - `OPENAI_API_KEY`
   - Optional (third-party APIs): `OPENAI_BASE_URL`
-  - Optional (telemetry): `LANGFUSE_HOST`, `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_USER_ID`
+  - Optional (telemetry): `LANGFUSE_BASE_URL`, `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_USER_ID` (`LANGFUSE_HOST` still works but is deprecated in favor of `LANGFUSE_BASE_URL`)
 
 ### Install
 
 ```bash
 uv sync  # install runtime + dev dependencies
+uv tool install pre-commit && pre-commit install  # optional: git hooks (ruff + mypy)
 ```
 
 ### Tests
@@ -42,7 +43,7 @@ The suite mocks the LLM judge, so it runs fully offline and needs no `OPENAI_API
 
 ### Configuration
 
-All runtime options are set in `scoring_algo/settings.py` (env prefix `SCORING_`):
+All runtime options are set in `scoring_algo/settings.py`:
 
 - `REPOS_TO_RUN`: list of repo names (without `.json`) to evaluate
 - `MODEL`: OpenAI model name (must be in `SUPPORTED_MODELS`)

@@ -1,0 +1,30 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directories:
+      - /
+      - /.github/actions/*
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  - package-ecosystem: uv
+    directory: /
+    ignore:
+      # langfuse 5.x drops support for self-hosted Langfuse v3 and v4 < 4.59.0;
+      # 4.x works with both, which matters for a public repo.
+      - dependency-name: "langfuse"
+        update-types: ["version-update:semver-major"]
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      uv:
+        patterns:
+          - "*"

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import asyncio
 import functools
+import inspect
 from collections.abc import Callable
 from typing import Any
 
@@ -25,7 +25,7 @@ def observe(*args: Any, **kwargs: Any) -> Callable:
     """
 
     def decorator(func: Callable) -> Callable:
-        if asyncio.iscoroutinefunction(func):
+        if inspect.iscoroutinefunction(func):
 
             @functools.wraps(func)
             async def async_wrapper(*a: Any, **kw: Any) -> Any:

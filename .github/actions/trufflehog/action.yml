@@ -1,0 +1,107 @@
+name: TruffleHog Secret Scan
+description: Scans a commit range, the full commit history, or the working tree for secrets.
+
+inputs:
+  mode:
+    description: >-
+      "git" scans commits and requires checkout with fetch-depth: 0. With
+      `base` and `head` it scans only the commits in base..head (push/PR);
+      without them it scans the full history. "filesystem" scans the working
+      tree only.
+    required: false
+    default: git
+  base:
+    description: Commit to scan from (exclusive). Git mode only.
+    required: false
+    default: ""
+  head:
+    description: Commit to scan up to (inclusive). Git mode only.
+    required: false
+    default: ""
+  # Bumped by hand (Dependabot does not track release downloads): take the
+  # linux_amd64 line of trufflehog_<version>_checksums.txt from the release.
+  version:
+    description: TruffleHog release tag to install.
+    required: false
+    default: v3.99.4
+  sha256:
+    description: SHA-256 of trufflehog_<version>_linux_amd64.tar.gz.
+    required: false
+    default: 5ae9b313342d1bfa96404064c0f59e77a2cbd1824d797ca7b11e6655aa8fd9d1
+
+runs:
+  using: composite
+  steps:
+    # The hash is part of the key, so a binary cached under a different
+    # checksum can never be restored for this one.
+    - name: Cache TruffleHog binary
+      id: cache-trufflehog
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: /usr/local/bin/trufflehog
+        key: trufflehog-${{ runner.os }}-${{ runner.arch }}-${{ inputs.version }}-${{ inputs.sha256 }}
+
+    # Downloads the release archive directly and checks it against the hash
+    # committed above, rather than running an install script from a mutable
+    # branch or trusting a checksums file from the same release.
+    - name: Install TruffleHog
+      if: steps.cache-trufflehog.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        TRUFFLEHOG_VERSION: ${{ inputs.version }}
+        TRUFFLEHOG_SHA256: ${{ inputs.sha256 }}
+        RUNNER_ARCH: ${{ runner.arch }}
+      run: |
+        set -euo pipefail
+        if [[ "$RUNNER_OS" != "Linux" || "$RUNNER_ARCH" != "X64" ]]; then
+          echo "::error::Only Linux X64 runners are supported (got $RUNNER_OS $RUNNER_ARCH)"
+          exit 1
+        fi
+        archive="trufflehog_${TRUFFLEHOG_VERSION#v}_linux_amd64.tar.gz"
+        tmp=$(mktemp -d)
+        curl -sSfL -o "$tmp/$archive" \
+          "https://github.com/trufflesecurity/trufflehog/releases/download/${TRUFFLEHOG_VERSION}/${archive}"
+        echo "${TRUFFLEHOG_SHA256}  $tmp/$archive" | sha256sum -c -
+        tar -xzf "$tmp/$archive" -C "$tmp" trufflehog
+        install -m 0755 "$tmp/trufflehog" /usr/local/bin/trufflehog
+        rm -rf "$tmp"
+
+    # Smoke-test on every run, including cache hits: a restored binary has never
+    # been validated, and a corrupt or incompatible one would otherwise surface
+    # downstream as a silent "no secrets detected".
+    - name: Verify TruffleHog binary
+      shell: bash
+      run: |
+        set -euo pipefail
+        echo "Using: $(trufflehog --version 2>&1)"
+
+    # Canary: a fake token under .github/ in a throwaway repo must be reported.
+    # Guards against exclude rules (or a broken binary) silently hiding
+    # workflow files, which an unanchored `\.git` exclude used to do.
+    - name: Self-test scanner
+      shell: bash
+      run: |
+        set -euo pipefail
+        canary=$(mktemp -d)
+        trap 'rm -rf "$canary"' EXIT
+        mkdir -p "$canary/.github"
+        printf 'env:\n  TOKEN: ghp_%s\n' "$(head -c 64 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 36)" \
+          > "$canary/.github/canary.yml"
+        git -C "$canary" init -q
+        # scan.sh exits 1 both on findings and on a broken scan, so check the
+        # output for an actual detection rather than the exit code.
+        out=$(cd "$canary" && SCAN_MODE=filesystem bash "$GITHUB_ACTION_PATH/scan.sh" 2>&1 || true)
+        if ! grep -q "secret(s) detected" <<<"$out"; then
+          echo "$out"
+          echo "::error::TruffleHog missed the canary token under .github/ — the scan cannot be trusted"
+          exit 1
+        fi
+        echo "Canary detected — scanner OK"
+
+    - name: Scan for secrets
+      shell: bash
+      env:
+        SCAN_MODE: ${{ inputs.mode }}
+        BASE_SHA: ${{ inputs.base }}
+        HEAD_SHA: ${{ inputs.head }}
+      run: bash "$GITHUB_ACTION_PATH/scan.sh"

@@ -1,0 +1,47 @@
+name: TruffleHog Secret Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  # Weekly sweep of the full commit history, to catch secrets that were
+  # committed before this workflow existed. push/PR only scan their own commits.
+  schedule:
+    - cron: "0 3 * * 1" # Every Monday at 3 AM UTC
+  # Same history sweep, on demand (e.g. after a suspected leak).
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Cancellation is limited to push/PR so a push can never cancel the scheduled
+# full-history sweep, the only run that scans every commit.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+
+jobs:
+  trufflehog:
+    name: Secret Scan
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+
+    steps:
+      # Full clone: the git scan walks commits, and base/head must both exist.
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      # Each commit in the push or PR is scanned, not just the final tree, so
+      # a secret added and then removed within a PR is still caught (the repo
+      # allows rebase merges, and PR refs stay public either way). Schedule and
+      # workflow_dispatch pass no range and sweep the full history.
+      - name: Run TruffleHog
+        uses: ./.github/actions/trufflehog
+        with:
+          base: ${{ github.event.pull_request.base.sha || github.event.before }}
+          head: ${{ github.event.pull_request.head.sha || github.event.after }}

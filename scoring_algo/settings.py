@@ -36,7 +36,7 @@ class Settings(BaseSettings):
             "gpt-5-nano-2025-08-07",
         ],
     }
-    LANGFUSE_HOST: str | None = None
+    LANGFUSE_BASE_URL: str | None = None
     LANGFUSE_PUBLIC_KEY: str | None = None
     LANGFUSE_SECRET_KEY: str | None = None
     LANGFUSE_USER_ID: str | None = None

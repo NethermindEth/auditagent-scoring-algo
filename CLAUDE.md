@@ -31,7 +31,9 @@ uv run ruff format scoring_algo/     # format (black-compatible)
 uv run mypy scoring_algo/            # type check
 ```
 
-Pre-commit hooks run ruff (lint + format) and mypy automatically on commit.
+Pre-commit hooks run ruff (lint + format) and mypy on commit, through `uv run --locked`, so they use the same pinned versions as CI. pre-commit is not a project dependency: install it with `uv tool install pre-commit && pre-commit install`.
+
+CI (`.github/workflows/`): `ci.yml` (ruff, mypy, pytest), `codeql.yml`, `trufflehog.yml`. Actions are pinned by commit SHA with a version comment; Dependabot bumps actions and `uv.lock` weekly (langfuse major bumps are ignored: 5.x drops older self-hosted servers). The TruffleHog binary version and SHA-256 in `.github/actions/trufflehog/action.yml` are bumped by hand.
 
 ## Code Style
 
@@ -60,7 +62,7 @@ Pre-commit hooks run ruff (lint + format) and mypy automatically on commit.
 - `types.py` — Pydantic models (`Vulnerability`, `Finding`, `EvaluatedFinding`) and enums (`Severity`, `Category`)
 - `prompt.py` — LLM prompt template (role: security expert, structured JSON output)
 - `telemetry.py` — Optional Langfuse integration (disable with `--no-telemetry`)
-- `settings.py` — Pydantic `BaseSettings` with `SCORING_` env prefix; loads from `.env`
+- `settings.py` — Pydantic `BaseSettings` (env vars matched by field name, no prefix); loads from `.env`
 
 ### Data Layout
 ```

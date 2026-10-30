@@ -46,3 +46,8 @@ scripts/
 
 # Claude code
 .claude/
+
+# Local evaluation runs (internal scan modes use a `__` separator, e.g.
+# `<repo>__<mode>`). Only the published `<platform>_<contest>` sets are tracked.
+benchmarks/*__*
+data/*/*__*
