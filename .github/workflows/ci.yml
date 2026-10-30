@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Lint, type check and tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Lowest supported (requires-python) and the dev version (.python-version).
+        python-version: ["3.12", "3.14"]
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # python-version sets UV_PYTHON, which overrides .python-version, so uv
+      # installs and uses the matrix interpreter.
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          # Cache on the lockfile: the job installs from it, not from pyproject.
+          cache-dependency-glob: "uv.lock"
+
+      # --locked fails if uv.lock is out of sync with pyproject.toml, instead of
+      # silently re-resolving to versions nobody reviewed.
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Ruff lint
+        run: uv run ruff check scoring_algo/
+
+      - name: Ruff format
+        run: uv run ruff format --check scoring_algo/
+
+      - name: Mypy
+        run: uv run mypy scoring_algo/
+
+      # The suite mocks the LLM judge, so it needs no API key.
+      - name: Tests
+        run: uv run pytest

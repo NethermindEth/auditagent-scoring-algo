@@ -1,6 +1,10 @@
+# Hook environments use the same Python as .python-version.
+default_language_version:
+  python: python3.14
+
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.13
+    rev: v0.17.2
     hooks:
       # Lint + autofix (includes isort via rule "I")
       - id: ruff
@@ -11,16 +15,18 @@ repos:
         args: [--config=pyproject.toml]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.16.1
+    rev: v2.4.0
     hooks:
       - id: mypy
+        # Same scope as CI (`mypy scoring_algo/`); tests are not type-checked.
+        files: ^scoring_algo/
         additional_dependencies:
           [
             types-requests,
             types-PyYAML,
             types-setuptools,
             types-python-dateutil,
-            "pydantic[mypy]==2.11.7",
+            "pydantic[mypy]==2.14.1",
             types-toml,
           ]
         args: [--config-file=pyproject.toml]

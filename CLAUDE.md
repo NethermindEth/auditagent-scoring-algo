@@ -31,7 +31,9 @@ uv run ruff format scoring_algo/     # format (black-compatible)
 uv run mypy scoring_algo/            # type check
 ```
 
-Pre-commit hooks run ruff (lint + format) and mypy automatically on commit.
+Pre-commit hooks run ruff (lint + format) and mypy automatically on commit. pre-commit is not a project dependency: install it with `uv tool install pre-commit && pre-commit install`. Keep the hook `rev`s in `.pre-commit-config.yaml` equal to the ruff/mypy pins in `pyproject.toml`.
+
+CI (`.github/workflows/`): `ci.yml` (ruff, mypy, pytest), `codeql.yml`, `trufflehog.yml`. Actions are pinned by commit SHA with a version comment; Dependabot bumps actions and `uv.lock` weekly.
 
 ## Code Style
 

@@ -1,0 +1,58 @@
+name: TruffleHog Secret Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  # Weekly sweep of the full commit history, to catch secrets that were
+  # committed before this workflow existed — or that were deleted from the tree
+  # but are still readable in git objects. push/PR only scan the working tree.
+  schedule:
+    - cron: "0 3 * * 1" # Every Monday at 3 AM UTC
+  # Same history sweep, on demand (e.g. after a suspected leak).
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Cancellation is limited to push/PR so a push can never cancel the scheduled
+# full-history sweep, the only run that scans git objects.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+
+jobs:
+  trufflehog:
+    name: Secret Scan
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+
+    env:
+      # Scheduled and manual runs sweep the full history; push/PR scan the
+      # working tree. Because this repo squash-merges, the PR head tree is
+      # exactly what lands in history, so the tree scan is a complete gate for
+      # anything new.
+      HISTORY_SCAN: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+
+    steps:
+      # Two checkouts rather than a computed fetch-depth: in GitHub expressions
+      # the number 0 is falsy, so `cond && 0 || 1` silently always yields 1.
+      - name: Checkout repository (working tree)
+        if: env.HISTORY_SCAN != 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Checkout repository (full history)
+        if: env.HISTORY_SCAN == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Run TruffleHog
+        uses: ./.github/actions/trufflehog
+        with:
+          mode: ${{ env.HISTORY_SCAN == 'true' && 'git' || 'filesystem' }}

@@ -1,0 +1,56 @@
+name: TruffleHog Secret Scan
+description: Scans the working tree, or the full commit history, for secrets.
+
+inputs:
+  mode:
+    description: >-
+      "filesystem" scans the working tree — used on push/PR to stop a new
+      secret from landing. "git" scans the full commit history to find
+      already-leaked credentials, and requires checkout with fetch-depth: 0.
+    required: false
+    default: filesystem
+  version:
+    description: >-
+      TruffleHog release tag to install. Single source of truth: consumed by
+      both the cache key and the installer, so the two can never drift apart.
+      Bump this to pick up a new release.
+    required: false
+    default: v3.99.4
+
+runs:
+  using: composite
+  steps:
+    - name: Cache TruffleHog binary
+      id: cache-trufflehog
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: /usr/local/bin/trufflehog
+        key: trufflehog-${{ runner.os }}-${{ inputs.version }}
+
+    # Only runs on a cache miss — takes ~20s, skipped on every subsequent run.
+    # The tag is passed explicitly: install.sh installs the LATEST release when
+    # no tag is given, which would silently ignore the pin above.
+    - name: Install TruffleHog
+      if: steps.cache-trufflehog.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        TRUFFLEHOG_VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+        curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh \
+          | sh -s -- -b /usr/local/bin "$TRUFFLEHOG_VERSION"
+
+    # Smoke-test on every run, including cache hits: a restored binary has never
+    # been validated, and a corrupt or incompatible one would otherwise surface
+    # downstream as a silent "no secrets detected".
+    - name: Verify TruffleHog binary
+      shell: bash
+      run: |
+        set -euo pipefail
+        echo "Using: $(trufflehog --version 2>&1)"
+
+    - name: Scan for secrets
+      shell: bash
+      env:
+        SCAN_MODE: ${{ inputs.mode }}
+      run: bash ${{ github.action_path }}/scan.sh

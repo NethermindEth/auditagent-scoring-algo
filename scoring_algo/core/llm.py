@@ -32,32 +32,26 @@ class LLMClient:
         if not self._use_base_url and "OPENAI_BASE_URL" in os.environ:
             del os.environ["OPENAI_BASE_URL"]
 
-        kwargs: dict[str, str] = {"api_key": api_key}
-        if base_url:
-            kwargs["base_url"] = base_url
-        self._client = AsyncOpenAI(**kwargs)
+        self._client = AsyncOpenAI(api_key=api_key, base_url=base_url)
 
     @observe(name="[LLM] Send prompt to LLM (async)", as_type="generation")
     async def generate_async(self, prompt: str) -> Finding | None:
         try:
             messages = _responses_input_from_text(prompt)
+            parsed_response: Finding | None
             if self._use_base_url:
-                response = await self._client.chat.completions.parse(
+                completion = await self._client.chat.completions.parse(
                     model=self.model,
-                    messages=messages,
+                    messages=[{"role": "user", "content": prompt}],
                     response_format=Finding,
                 )
+                parsed_response = getattr(completion.choices[0].message, "parsed", None)
             else:
                 response = await self._client.responses.parse(
                     model=self.model,
-                    input=messages,
+                    input=[{"role": "user", "content": prompt}],
                     text_format=Finding,
                 )
-
-            parsed_response: Finding | None
-            if self._use_base_url:
-                parsed_response = getattr(response.choices[0].message, "parsed", None)
-            else:
                 parsed_response = getattr(response, "output_parsed", None)
             input_text = _openai_messages_langfuse(messages)
             output_text = str(parsed_response)
