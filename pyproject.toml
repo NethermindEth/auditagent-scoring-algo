@@ -7,7 +7,7 @@ license = "Apache-2.0"
 requires-python = ">=3.12"
 dependencies = [
     "openai==2.24.0",
-    "python-dotenv==1.0.1",
+    "python-dotenv==1.2.2",
     "typer==0.17.3",
     "rich==14.1.0",
     "orjson==3.11.6",
