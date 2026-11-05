@@ -6,23 +6,23 @@ readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.12"
 dependencies = [
-    "openai==3.37.0",
+    "openai==3.41.0",
     "python-dotenv==1.2.4",
     "typer==0.27.3",
     "rich==15.0.0",
     "langfuse==4.18.0",
     "pydantic==2.14.1",
     "tiktoken==0.14.0",
-    "pydantic-settings==2.16.1",
+    "pydantic-settings==2.16.2",
 ]
 
 [dependency-groups]
 dev = [
-    "mypy==2.4.0",
+    "mypy==2.4.1",
     "pydantic[mypy]==2.14.1",
-    "pytest==9.1.1",
-    "pytest-asyncio==1.4.0",
-    "ruff==0.17.2",
+    "pytest==9.2.0",
+    "pytest-asyncio==1.4.1",
+    "ruff==0.17.3",
 ]
 
 [project.scripts]
