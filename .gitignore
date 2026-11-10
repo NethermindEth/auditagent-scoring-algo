@@ -51,3 +51,6 @@ scripts/
 # `<repo>__<mode>`). Only the published `<platform>_<contest>` sets are tracked.
 benchmarks/*__*
 data/*/*__*
+
+# Claude Code local files (can hold secrets)
+CLAUDE.local.md
