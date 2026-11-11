@@ -669,7 +669,7 @@ wheels = [
 
 [[package]]
 name = "openai"
-version = "3.41.0"
+version = "3.45.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -679,9 +679,9 @@ dependencies = [
     { name = "sniffio" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8f/f1/3aaadae62d59a9b464f9d2e1deab74f9eb697244beb7dc37fff64df9c92c/openai-3.41.0.tar.gz", hash = "sha256:d065fc59d3d7d8537a77b3ceb527732952c6ff610158e8a2a95b246be637e86f", size = 2313147, upload-time = "2026-10-28T22:27:52.317Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/de/ef/639821491538e8bb4c56f3367f00787e8aadc1665ce1598e7506bcb65663/openai-3.45.0.tar.gz", hash = "sha256:6cff2b5c7b463123fcb94d1bb7e4920e5fab9bb3ed4f837faa0d0bf1d6d6ea3b", size = 2386886, upload-time = "2026-11-04T02:24:10.931Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/83/23/089333ff950ee07c30762160f4eff5ac5d376934c2d6797abf6da9cd06a5/openai-3.41.0-py3-none-any.whl", hash = "sha256:7060a74b239609b21f2919eb98807a8aad463b4f510b8b3b388b15559360b0a8", size = 2380171, upload-time = "2026-10-28T22:27:50.372Z" },
+    { url = "https://files.pythonhosted.org/packages/f5/ff/3ff596d5fc94d241a105777e3bf8c696ff949afa3eb04f1c09bd6d4c20b8/openai-3.45.0-py3-none-any.whl", hash = "sha256:b63aa90e3b7b57b501f2bba231a17976618aa133f457562ad84a5c6431fd0425", size = 2426748, upload-time = "2026-11-04T02:24:08.659Z" },
 ]
 
 [[package]]
@@ -1001,15 +1001,15 @@ wheels = [
 
 [[package]]
 name = "pytest-asyncio"
-version = "1.4.1"
+version = "1.4.1.post1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pytest" },
     { name = "typing-extensions", marker = "python_full_version < '3.13'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f8/9a/887535e477847f5159377ab35303923644840b13c0ca03c0a467f84d4680/pytest_asyncio-1.4.1.tar.gz", hash = "sha256:e8266eb094e5ee9ffdb2068c9836f33e209ea77a970eb846933d416b5602669b", size = 145237, upload-time = "2026-10-25T21:05:37.135Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/73/7f/c60a4338420b33453d4f814ac0c930abd399f162b9bdd21af4b9e363037f/pytest_asyncio-1.4.1.post1.tar.gz", hash = "sha256:f582d9ea4a1c082195abe8bd29a1fe106aeb1cd435e3dad2d3bc2749935c36a2", size = 145360, upload-time = "2026-11-01T18:26:03.732Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/46/d7/cd9e2708afdbf059658adaf08bdb0792ca52489871051d6ce7d498b51277/pytest_asyncio-1.4.1-py3-none-any.whl", hash = "sha256:507afa78ec77c6661164ef1a2368bc7820383fd1a14b2a7f813de8b5a92949cc", size = 17061, upload-time = "2026-10-25T21:05:35.473Z" },
+    { url = "https://files.pythonhosted.org/packages/e3/de/adbc7578959cfab07e5e7c05cf6d54224a51e7667ea2c07458b6bc571e75/pytest_asyncio-1.4.1.post1-py3-none-any.whl", hash = "sha256:0755e488cc0a2b9bd2eab7292cc6390d4cbb8390f1020745647bae5a708e0165", size = 17140, upload-time = "2026-11-01T18:26:02.168Z" },
 ]
 
 [[package]]
@@ -1205,7 +1205,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "langfuse", specifier = "==4.18.0" },
-    { name = "openai", specifier = "==3.41.0" },
+    { name = "openai", specifier = "==3.45.0" },
     { name = "pydantic", specifier = "==2.14.1" },
     { name = "pydantic-settings", specifier = "==2.16.2" },
     { name = "python-dotenv", specifier = "==1.2.4" },
@@ -1219,7 +1219,7 @@ dev = [
     { name = "mypy", specifier = "==2.4.1" },
     { name = "pydantic", extras = ["mypy"], specifier = "==2.14.1" },
     { name = "pytest", specifier = "==9.2.0" },
-    { name = "pytest-asyncio", specifier = "==1.4.1" },
+    { name = "pytest-asyncio", specifier = "==1.4.1.post1" },
     { name = "ruff", specifier = "==0.17.3" },
 ]
 
